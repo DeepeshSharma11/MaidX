@@ -130,6 +130,20 @@ CREATE TABLE IF NOT EXISTS rate_limits (
 CREATE INDEX IF NOT EXISTS idx_rate_limits_identifier ON rate_limits(identifier, action);
 
 -- ───────────────────────────────
+-- OTP CODES
+-- ───────────────────────────────
+CREATE TABLE IF NOT EXISTS otp_codes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) NOT NULL,
+    otp VARCHAR(6) NOT NULL,
+    purpose VARCHAR(50) NOT NULL,       -- 'signup_verify', 'password_reset'
+    is_used BOOLEAN DEFAULT FALSE,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_otp_email_purpose ON otp_codes(email, purpose);
+
+-- ───────────────────────────────
 -- HELP DESK / TICKETS
 -- ───────────────────────────────
 CREATE TABLE IF NOT EXISTS tickets (
