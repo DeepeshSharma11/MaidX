@@ -1,9 +1,8 @@
 # Project Context: MaidX (Domestic Help Hiring Platform)
 
 ## Core Stack
-- **Frontend**: Next.js (TypeScript)
+- **Frontend**: Next.js (TypeScript) + Socket.io (Custom Server)
 - **Backend API**: FastAPI (Python)
-- **Realtime Service**: Node.js with Socket.IO
 - **Database**: PostgreSQL via Supabase
 
 ## Overview
