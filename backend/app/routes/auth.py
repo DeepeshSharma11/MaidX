@@ -65,9 +65,21 @@ async def signup(body: SignupRequest, request: Request):
     db = get_supabase()
     
     # Check if email exists
-    existing_user = db.table("users").select("id").eq("email", body.email).execute()
+    existing_user = db.table("users").select("id, is_active").eq("email", body.email).execute()
+    
     if existing_user.data:
-        raise HTTPException(status_code=400, detail="Email already registered.")
+        user = existing_user.data[0]
+        if user["is_active"]:
+            raise HTTPException(status_code=400, detail="Email already registered.")
+        else:
+            # Unverified account → resend OTP and tell frontend to show OTP screen
+            otp = generate_otp()
+            store_otp(body.email, otp, "signup_verify")
+            send_otp_email(body.email, otp)
+            return {
+                "message": "Account already exists but is not verified. A new OTP has been sent.",
+                "requires_otp": True,
+            }
 
     hashed_password = get_password_hash(body.password)
 

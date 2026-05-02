@@ -38,8 +38,11 @@ export default function SignupPage() {
     setLoading(true);
     setError("");
     try {
-      await signup(email, password, fullName, role);
-      setStep("otp");
+      // Call API directly to inspect requires_otp flag
+      const { data } = await api.post("/auth/signup", { email, password, full_name: fullName, role });
+      if (data.requires_otp) {
+        setStep("otp");
+      }
     } catch (err: any) {
       setError(err.response?.data?.detail ?? "Signup failed. Please try again.");
     } finally {
