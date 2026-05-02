@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Search, CalendarDays, ShieldCheck, Star } from "lucide-react";
 import Link from "next/link";
@@ -13,12 +14,7 @@ export default function Home() {
       <nav className="fixed w-full top-0 z-50 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-white/50 dark:bg-zinc-950/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
-              <Star className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-zinc-900 dark:text-white">
-              MaidX
-            </span>
+            <Image src="/logo.png" alt="MaidX Logo" width={120} height={40} className="h-8 w-auto object-contain" />
           </div>
           <div className="flex items-center gap-4">
             {authLoading ? (

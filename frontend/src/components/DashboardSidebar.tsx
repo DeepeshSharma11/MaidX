@@ -3,6 +3,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { Star, LogOut, Home, User, Calendar, Settings, HelpCircle } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 interface NavItem {
@@ -53,10 +54,7 @@ export default function DashboardSidebar() {
       {/* Logo */}
       <div className="p-5 border-b border-zinc-100 dark:border-zinc-800">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
-            <Star className="w-5 h-5 text-white" />
-          </div>
-          <span className="text-lg font-bold text-zinc-900 dark:text-white">MaidX</span>
+          <Image src="/logo.png" alt="MaidX Logo" width={100} height={32} className="h-7 w-auto object-contain" />
         </Link>
       </div>
 

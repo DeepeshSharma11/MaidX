@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Loader2, Star, ArrowLeft, CheckCircle2, Eye, EyeOff } from "lucide-react";
@@ -135,10 +136,7 @@ export default function ForgotPasswordPage() {
       >
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl p-8">
           <div className="flex items-center gap-2 mb-8">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
-              <Star className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-zinc-900 dark:text-white">MaidX</span>
+            <Image src="/logo.png" alt="MaidX Logo" width={120} height={40} className="h-8 w-auto object-contain" />
           </div>
 
           {/* ── Success ── */}
