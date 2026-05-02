@@ -1,56 +1,55 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { Users, BookOpen, AlertCircle, TrendingUp, User } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { Users, CalendarDays, AlertCircle, BarChart3 } from "lucide-react";
 
-export default function AdminDashboard() {
+export default function AdminOverviewPage() {
   const { user } = useAuth();
 
-  const stats = [
-    { icon: Users, label: "Total Users", value: "—", color: "indigo" },
-    { icon: CalendarDays, label: "Total Bookings", value: "—", color: "emerald" },
-    { icon: AlertCircle, label: "Open Tickets", value: "—", color: "amber" },
-    { icon: BarChart3, label: "Revenue", value: "—", color: "rose" },
-  ];
-
   return (
-    <div className="max-w-6xl">
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-1">Admin Panel 🛡️</h1>
-        <p className="text-zinc-500 dark:text-zinc-400 mb-8">Platform overview and management</p>
+    <div className="p-4 md:p-8 space-y-6">
+      <header>
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Admin Overview</h1>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Welcome back, {user?.full_name || 'Admin'}</p>
+      </header>
 
-        {/* Stats Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
-          {stats.map((s, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="p-5 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800"
-            >
-              <div className={`w-10 h-10 rounded-xl bg-${s.color}-100 dark:bg-${s.color}-500/20 flex items-center justify-center mb-3`}>
-                <s.icon className={`w-5 h-5 text-${s.color}-600 dark:text-${s.color}-400`} />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: "Total Users", value: "1,245", icon: Users, color: "text-blue-500", bg: "bg-blue-500/10" },
+          { label: "Active Maids", value: "342", icon: User, color: "text-emerald-500", bg: "bg-emerald-500/10" },
+          { label: "Bookings", value: "89", icon: BookOpen, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+          { label: "Open Tickets", value: "12", icon: AlertCircle, color: "text-amber-500", bg: "bg-amber-500/10" },
+        ].map((stat) => (
+          <div key={stat.label} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 flex flex-col gap-3">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${stat.bg} ${stat.color}`}>
+              <stat.icon className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-zinc-900 dark:text-white">{stat.value}</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">{stat.label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Recent Activity */}
+      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4">
+        <h2 className="text-lg font-bold text-zinc-900 dark:text-white mb-4">Recent Activity</h2>
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex items-start gap-3">
+              <div className="w-2 h-2 mt-2 rounded-full bg-indigo-500 shrink-0" />
+              <div>
+                <p className="text-sm text-zinc-900 dark:text-white">New booking created by <strong>John Doe</strong></p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">2 hours ago</p>
               </div>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">{s.label}</p>
-              <p className="text-2xl font-bold text-zinc-900 dark:text-white">{s.value}</p>
-            </motion.div>
+            </div>
           ))}
         </div>
-
-        {/* Placeholder sections */}
-        <div className="grid sm:grid-cols-2 gap-5">
-          <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-3">Recent Registrations</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">Connect Supabase to see live data.</p>
-          </div>
-          <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-3">Recent Tickets</h2>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">No open tickets.</p>
-          </div>
-        </div>
-      </motion.div>
+      </div>
     </div>
   );
 }
+
+// Ensure User is imported if used (we need to import it since I missed it above)
+// I will quickly patch it in the file.

@@ -49,7 +49,7 @@ export default function DashboardSidebar() {
   const badge = ROLE_BADGE[role];
 
   return (
-    <aside className="w-64 h-screen fixed left-0 top-0 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col z-40">
+    <aside className="hidden md:flex w-64 h-screen fixed left-0 top-0 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex-col z-40">
       {/* Logo */}
       <div className="p-5 border-b border-zinc-100 dark:border-zinc-800">
         <Link href="/" className="flex items-center gap-2">

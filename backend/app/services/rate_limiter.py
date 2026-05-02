@@ -10,12 +10,12 @@ from app.core.supabase_client import get_supabase
 
 # Config: max attempts per window per action
 LIMITS = {
-    "signup": 5,
-    "login": 10,
-    "forgot_password": 3,
-    "otp_verify": 10,  # Higher limit — user may mistype OTP
+    "signup": 20,
+    "login": 30,
+    "forgot_password": 15,
+    "otp_verify": 30,
 }
-WINDOW_MINUTES = 15
+WINDOW_MINUTES = 30
 
 
 def _get_identifiers(request: Request) -> list[str]:

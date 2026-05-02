@@ -2,13 +2,15 @@
 
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import MobileNav from "@/components/MobileNav";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <ProtectedRoute allowedRoles={["admin"]}>
-      <div className="flex min-h-screen bg-slate-50 dark:bg-zinc-950">
+      <div className="flex min-h-screen bg-slate-50 dark:bg-zinc-950 pb-16 md:pb-0">
         <DashboardSidebar />
-        <main className="flex-1 ml-64 p-8">{children}</main>
+        <main className="flex-1 md:ml-64">{children}</main>
+        <MobileNav />
       </div>
     </ProtectedRoute>
   );
