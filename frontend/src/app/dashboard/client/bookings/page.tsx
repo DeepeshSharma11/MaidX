@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
 import { useDeviceTier } from "@/hooks/useDeviceTier";
 import { motion } from "framer-motion";
-import { Calendar, Clock, MapPin, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Calendar, Clock, Loader2 } from "lucide-react";
 
 interface Booking {
   id: string;
@@ -46,11 +46,11 @@ export default function ClientBookingsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "pending": return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
+      case "pending":   return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
       case "confirmed": return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
       case "completed": return "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400";
       case "cancelled": return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
-      default: return "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-400";
+      default:          return "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-400";
     }
   };
 
@@ -59,7 +59,7 @@ export default function ClientBookingsPage() {
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
+    <div className="p-4 md:p-8 space-y-6 pb-24 md:pb-8">
       <header>
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">My Bookings</h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">Manage your past and upcoming maid services.</p>
