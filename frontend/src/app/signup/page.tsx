@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, Loader2, Star, CheckCircle2 } from "lucide-react";
-import api from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 const ROLES = [
   { value: "client", label: "I need help 🏠", desc: "Hire trusted domestic workers" },
@@ -14,6 +14,7 @@ const ROLES = [
 
 export default function SignupPage() {
   const router = useRouter();
+  const { signup } = useAuth();
   const [step, setStep] = useState<"form" | "success">("form");
   const [role, setRole] = useState("client");
   const [fullName, setFullName] = useState("");
@@ -32,7 +33,7 @@ export default function SignupPage() {
     setLoading(true);
     setError("");
     try {
-      await api.post("/auth/signup", { email, password, full_name: fullName, role });
+      await signup(email, password, fullName, role);
       setStep("success");
     } catch (err: any) {
       setError(err.response?.data?.detail ?? "Signup failed. Please try again.");

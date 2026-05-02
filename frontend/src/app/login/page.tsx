@@ -2,15 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2, Star } from "lucide-react";
-import api from "@/lib/api";
-import { useAuthStore } from "@/store/authStore";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
-  const router = useRouter();
-  const { setAuth } = useAuthStore();
+  const { login } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,14 +20,7 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      const { data } = await api.post("/auth/login", { email, password });
-      setAuth(data.user, data.access_token, data.refresh_token);
-      const redirects: Record<string, string> = {
-        admin: "/dashboard/admin",
-        maid: "/dashboard/maid",
-        client: "/dashboard/client",
-      };
-      router.push(redirects[data.user.role] ?? "/dashboard/client");
+      await login(email, password);
     } catch (err: any) {
       setError(err.response?.data?.detail ?? "Login failed. Please try again.");
     } finally {
