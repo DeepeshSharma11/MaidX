@@ -1,12 +1,30 @@
 "use client";
 
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
 import { Calendar, ClipboardList, Star, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import api from "@/lib/api";
 
 export default function MaidDashboard() {
   const { user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    async function checkProfile() {
+      try {
+        const { data } = await api.get("/profile");
+        if (!data.phone) {
+          router.push("/dashboard/maid/profile?onboard=true");
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    checkProfile();
+  }, [router]);
 
   return (
     <div className="max-w-5xl">

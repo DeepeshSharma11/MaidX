@@ -1,10 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useDeviceTier } from "@/hooks/useDeviceTier";
 import { motion } from "framer-motion";
 import { Search, Calendar, Star, ArrowRight, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import api from "@/lib/api";
 
 export default function ClientHomePage() {
   const { user } = useAuth();
@@ -16,6 +19,22 @@ export default function ClientHomePage() {
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.3 }
   };
+
+  const router = useRouter();
+
+  useEffect(() => {
+    async function checkProfile() {
+      try {
+        const { data } = await api.get("/profile");
+        if (!data.phone) {
+          router.push("/dashboard/client/profile?onboard=true");
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    checkProfile();
+  }, [router]);
 
   return (
     <div className="p-4 md:p-8 space-y-8 pb-24 md:pb-8 max-w-5xl mx-auto">

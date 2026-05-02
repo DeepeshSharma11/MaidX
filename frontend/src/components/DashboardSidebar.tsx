@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { Star, LogOut, Home, User, Calendar, Settings, HelpCircle } from "lucide-react";
+import { LogOut, Home, User, Calendar, Settings, HelpCircle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -17,15 +17,17 @@ const NAV_ITEMS: Record<string, NavItem[]> = {
     { label: "Home", href: "/dashboard/client", icon: Home },
     { label: "Search Maids", href: "/dashboard/client/find-maids", icon: User },
     { label: "My Bookings", href: "/dashboard/client/bookings", icon: Calendar },
+    { label: "Profile", href: "/dashboard/client/profile", icon: User },
     { label: "Support", href: "/dashboard/client/support", icon: HelpCircle },
-    { label: "Profile", href: "/dashboard/client/profile", icon: Settings },
+    { label: "Settings", href: "/dashboard/client/settings", icon: Settings },
   ],
   maid: [
     { label: "Home", href: "/dashboard/maid", icon: Home },
     { label: "My Schedule", href: "/dashboard/maid/schedule", icon: Calendar },
     { label: "Bookings", href: "/dashboard/maid/bookings", icon: Calendar },
-    { label: "Profile", href: "/dashboard/maid/profile", icon: Settings },
+    { label: "Profile", href: "/dashboard/maid/profile", icon: User },
     { label: "Support", href: "/dashboard/maid/support", icon: HelpCircle },
+    { label: "Settings", href: "/dashboard/maid/settings", icon: Settings },
   ],
   admin: [
     { label: "Overview", href: "/dashboard/admin", icon: Home },
