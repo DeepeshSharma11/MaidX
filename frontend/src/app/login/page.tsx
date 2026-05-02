@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -9,8 +9,14 @@ import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { user, loading: authLoading, login } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    if (user && !authLoading) {
+      router.replace(`/dashboard/${user.role}`);
+    }
+  }, [user, authLoading, router]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

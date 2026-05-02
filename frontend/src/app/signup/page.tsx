@@ -16,7 +16,13 @@ const ROLES = [
 export default function SignupPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { signup } = useAuth();
+  const { user, loading: authLoading, signup } = useAuth();
+
+  useEffect(() => {
+    if (user && !authLoading) {
+      router.replace(`/dashboard/${user.role}`);
+    }
+  }, [user, authLoading, router]);
 
   // If redirected from login with unverified account
   const urlEmail = searchParams.get("email") ?? "";
