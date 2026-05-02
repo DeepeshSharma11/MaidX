@@ -1,49 +1,88 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
-import { Search, CalendarDays, Star, ArrowRight } from "lucide-react";
+import { useDeviceTier } from "@/hooks/useDeviceTier";
+import { motion } from "framer-motion";
+import { Search, Calendar, Star, ArrowRight, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
-export default function ClientDashboard() {
+export default function ClientHomePage() {
   const { user } = useAuth();
+  const tier = useDeviceTier();
+
+  const ItemWrapper = tier === "low" ? "div" : motion.div;
+  const animProps = tier === "low" ? {} : {
+    initial: { opacity: 0, y: 10 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.3 }
+  };
 
   return (
-    <div className="max-w-5xl">
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-1">
-          Welcome back, {user?.full_name || "there"} 👋
-        </h1>
-        <p className="text-zinc-500 dark:text-zinc-400 mb-8">Find and book trusted domestic help</p>
+    <div className="p-4 md:p-8 space-y-8 pb-24 md:pb-8 max-w-5xl mx-auto">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-zinc-900 dark:text-white">
+            Welcome, {user?.full_name?.split(' ')[0] || 'Guest'} 👋
+          </h1>
+          <p className="text-sm md:text-base text-zinc-500 dark:text-zinc-400 mt-1">
+            Find the best domestic help near you.
+          </p>
+        </div>
+      </header>
 
-        {/* Quick Actions */}
-        <div className="grid sm:grid-cols-3 gap-5 mb-10">
-          {[
-            { icon: Search, title: "Find a Maid", desc: "Search by skills & location", href: "/dashboard/client/search", color: "indigo" },
-            { icon: CalendarDays, title: "My Bookings", desc: "View upcoming sessions", href: "/dashboard/client/bookings", color: "emerald" },
-            { icon: Star, title: "My Reviews", desc: "Rate past services", href: "/dashboard/client/bookings", color: "amber" },
-          ].map((card, i) => (
-            <Link
-              key={i}
-              href={card.href}
-              className="group p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:shadow-lg hover:-translate-y-0.5 transition-all"
-            >
-              <div className={`w-10 h-10 rounded-xl bg-${card.color}-100 dark:bg-${card.color}-500/20 flex items-center justify-center mb-4`}>
-                <card.icon className={`w-5 h-5 text-${card.color}-600 dark:text-${card.color}-400`} />
-              </div>
-              <h3 className="font-semibold text-zinc-900 dark:text-white mb-1">{card.title}</h3>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">{card.desc}</p>
-              <ArrowRight className="w-4 h-4 mt-3 text-zinc-400 group-hover:text-indigo-500 group-hover:translate-x-1 transition-all" />
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <ItemWrapper
+          {...animProps}
+          className="relative overflow-hidden bg-indigo-600 rounded-2xl p-6 md:p-8 text-white group hover:shadow-lg transition-shadow cursor-pointer"
+        >
+          <div className="relative z-10">
+            <Search className="w-8 h-8 mb-4 opacity-80" />
+            <h2 className="text-xl font-bold mb-2">Find a Maid</h2>
+            <p className="text-indigo-100 text-sm mb-6 max-w-xs">
+              Search top-rated professionals for cleaning, cooking, and more.
+            </p>
+            <Link href="/dashboard/client/find-maids" className="inline-flex items-center gap-2 bg-white text-indigo-600 px-4 py-2 rounded-xl text-sm font-bold group-hover:gap-3 transition-all">
+              Search Now <ArrowRight className="w-4 h-4" />
             </Link>
-          ))}
-        </div>
+          </div>
+          {/* Decorative circles */}
+          <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+          <div className="absolute -bottom-8 right-12 w-32 h-32 bg-indigo-400/30 rounded-full blur-xl"></div>
+        </ItemWrapper>
 
-        {/* Placeholder stats */}
-        <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">Recent Activity</h2>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">No bookings yet. Start by searching for a maid!</p>
+        <ItemWrapper
+          {...animProps}
+          transition={tier !== "low" ? { delay: 0.1 } : undefined}
+          className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 md:p-8 flex flex-col justify-between"
+        >
+          <div>
+            <Calendar className="w-8 h-8 mb-4 text-emerald-500" />
+            <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">My Bookings</h2>
+            <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-6 max-w-xs">
+              View your upcoming appointments and past service history.
+            </p>
+          </div>
+          <Link href="/dashboard/client/bookings" className="inline-flex items-center gap-2 text-zinc-900 dark:text-white font-semibold hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
+            View Bookings <ArrowRight className="w-4 h-4" />
+          </Link>
+        </ItemWrapper>
+      </div>
+
+      {/* Trust & Safety Banner */}
+      <ItemWrapper
+        {...animProps}
+        transition={tier !== "low" ? { delay: 0.2 } : undefined}
+        className="bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 rounded-2xl p-4 flex items-center gap-4"
+      >
+        <div className="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center shrink-0">
+          <ShieldCheck className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
         </div>
-      </motion.div>
+        <div>
+          <h3 className="font-bold text-emerald-900 dark:text-emerald-100 text-sm">Verified Professionals</h3>
+          <p className="text-emerald-700 dark:text-emerald-300 text-xs mt-0.5">All our maids undergo strict background checks to ensure your safety and security.</p>
+        </div>
+      </ItemWrapper>
     </div>
   );
 }

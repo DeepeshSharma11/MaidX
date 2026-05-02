@@ -11,6 +11,37 @@ class LocationUpdate(BaseModel):
     address: str | None = None
     service_radius_km: int = 5
 
+class ProfileUpdate(BaseModel):
+    full_name: str | None = None
+    phone: str | None = None
+    avatar_url: str | None = None
+    hourly_rate: float | None = None
+    skills: list[str] | None = None
+
+@router.get("/")
+async def get_profile(user: dict = Depends(get_current_user)):
+    db = get_supabase()
+    res = db.table("profiles").select("*").eq("id", user["id"]).execute()
+    if not res.data:
+        raise HTTPException(status_code=404, detail="Profile not found")
+        
+    user_res = db.table("users").select("email").eq("id", user["id"]).execute()
+    email = user_res.data[0]["email"] if user_res.data else ""
+    
+    profile = res.data[0]
+    profile["email"] = email
+    return profile
+
+@router.patch("/")
+async def update_profile(body: ProfileUpdate, user: dict = Depends(get_current_user)):
+    db = get_supabase()
+    update_data = {k: v for k, v in body.model_dump().items() if v is not None}
+    if not update_data:
+        return {"message": "No data to update"}
+        
+    res = db.table("profiles").update(update_data).eq("id", user["id"]).execute()
+    return {"message": "Profile updated successfully", "profile": res.data[0] if res.data else None}
+
 @router.patch("/location")
 async def update_location(body: LocationUpdate, user: dict = Depends(get_current_user)):
     if user["role"] != "maid":

@@ -16,6 +16,7 @@ const NAV_ITEMS: Record<string, NavItem[]> = {
     { label: "Home", href: "/dashboard/client", icon: Home },
     { label: "Search", href: "/dashboard/client/find-maids", icon: User },
     { label: "Bookings", href: "/dashboard/client/bookings", icon: Calendar },
+    { label: "Support", href: "/dashboard/client/support", icon: HelpCircle },
     { label: "Profile", href: "/dashboard/client/profile", icon: Settings },
   ],
   maid: [

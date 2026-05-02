@@ -14,7 +14,7 @@ interface NavItem {
 const NAV_ITEMS: Record<string, NavItem[]> = {
   client: [
     { label: "Home", href: "/dashboard/client", icon: Home },
-    { label: "Search Maids", href: "/dashboard/client/search", icon: User },
+    { label: "Search Maids", href: "/dashboard/client/find-maids", icon: User },
     { label: "My Bookings", href: "/dashboard/client/bookings", icon: Calendar },
     { label: "Support", href: "/dashboard/client/support", icon: HelpCircle },
     { label: "Profile", href: "/dashboard/client/profile", icon: Settings },

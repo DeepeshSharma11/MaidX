@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     lng DECIMAL(11, 8),
     address TEXT,
     service_radius_km INT DEFAULT 5,
+    phone TEXT,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
