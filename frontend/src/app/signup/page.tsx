@@ -27,9 +27,10 @@ export default function SignupPage() {
   // If redirected from login with unverified account
   const urlEmail = searchParams.get("email") ?? "";
   const urlStep = searchParams.get("step") as "form" | "otp" | null;
+  const urlRole = searchParams.get("role");
 
   const [step, setStep] = useState<"form" | "otp" | "success">(urlStep === "otp" ? "otp" : "form");
-  const [role, setRole] = useState("client");
+  const [role, setRole] = useState(urlRole === "maid" ? "maid" : "client");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState(urlEmail);
   const [password, setPassword] = useState("");
