@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import api from "@/lib/api";
+import api, { setAccessToken } from "@/lib/api";
 
 interface User {
   id: string;
@@ -26,57 +26,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
-  // Hydrate from localStorage on mount
+  // On mount, try to refresh token via httpOnly cookie to restore session
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("maidx-auth");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed?.state?.user && parsed?.state?.accessToken) {
-          setUser(parsed.state.user);
-          localStorage.setItem("access_token", parsed.state.accessToken);
-        }
+    const restoreSession = async () => {
+      try {
+        const { data } = await api.post("/auth/refresh");
+        setAccessToken(data.access_token);
+        setUser(data.user);
+      } catch {
+        // If refresh fails, user is not logged in.
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      // ignore
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    };
+    restoreSession();
 
-  const persistAuth = (user: User, accessToken: string, refreshToken: string) => {
-    localStorage.setItem("access_token", accessToken);
-    localStorage.setItem(
-      "maidx-auth",
-      JSON.stringify({ state: { user, accessToken, refreshToken } })
-    );
-  };
+    // Listen for unauthorized events from api interceptor
+    const handleUnauthorized = () => {
+      setUser(null);
+      router.push("/login");
+    };
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("auth:unauthorized", handleUnauthorized);
+  }, [router]);
 
   const login = async (email: string, password: string) => {
     const { data } = await api.post("/auth/login", { email, password });
-    const u: User = data.user;
-    setUser(u);
-    persistAuth(u, data.access_token, data.refresh_token);
+    setAccessToken(data.access_token);
+    setUser(data.user);
 
     const routes: Record<string, string> = {
       admin: "/dashboard/admin",
       maid: "/dashboard/maid",
       client: "/dashboard/client",
     };
-    router.push(routes[u.role] ?? "/dashboard/client");
+    router.push(routes[data.user.role] ?? "/dashboard/client");
   };
 
   const signup = async (email: string, password: string, full_name: string, role: string) => {
     await api.post("/auth/signup", { email, password, full_name, role });
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("maidx-auth");
-    api.post("/auth/logout").catch(() => {});
-    router.push("/login");
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } finally {
+      setUser(null);
+      setAccessToken(null);
+      router.push("/login");
+    }
   };
 
   return (

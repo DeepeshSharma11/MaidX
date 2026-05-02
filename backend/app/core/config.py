@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     SMTP_PASS: str = ""
     SMTP_FROM_EMAIL: str = ""
 
+    JWT_SECRET_KEY: str = "supersecretkey_change_in_production"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+
     FRONTEND_URL: str = "http://localhost:3000"
 
     class Config:
