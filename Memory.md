@@ -4,59 +4,49 @@
 - **Frontend**: Next.js (TypeScript) + Socket.io (Custom Server) + TailwindCSS + Framer Motion
 - **Backend API**: FastAPI (Python)
 - **Database**: PostgreSQL via Supabase
-- **Auth**: Supabase Auth (managed) — profiles table extends auth.users
+- **Auth**: Custom JWT Auth (bcrypt + HttpOnly Refresh Tokens) — transitioned from managed Supabase Auth
 - **State**: React Context (AuthContext) — no Zustand
+- **Performance**: `useDeviceTier` hook for adaptive, device-aware animations to ensure zero-lag on low-end devices.
 
 ## Overview
-MaidX connects domestic workers with clients. Time-slot based booking, verified profiles, ratings.
+MaidX connects domestic workers with clients. Time-slot based booking, verified profiles, proximity-based location search (Haversine formula), and a robust admin dashboard.
 
 ## Architecture: Frontend Routing
 ```
 src/
-├── context/AuthContext.tsx        # Auth state, login/signup/logout
+├── context/AuthContext.tsx        # Custom Auth state, JWT management
+├── hooks/useDeviceTier.ts         # Hardware concurrency/memory based performance scaling
 ├── components/
 │   ├── ProtectedRoute.tsx         # Role-gated wrapper
-│   └── DashboardSidebar.tsx       # Role-aware sidebar nav
+│   ├── DashboardSidebar.tsx       # Role-aware sidebar nav
+│   └── MobileNav.tsx              # Bottom navigation for mobile-first UI
 ├── app/
 │   ├── providers.tsx              # Client-side context wrapper
 │   ├── layout.tsx                 # Root layout (wraps Providers)
-│   ├── page.tsx                   # Landing page
-│   ├── login/page.tsx             # Login (uses AuthContext)
-│   ├── signup/page.tsx            # Signup with role picker
-│   ├── forgot-password/page.tsx
+│   ├── page.tsx                   # Landing page (Auth-aware CTAs)
+│   ├── login/page.tsx             # Login (custom backend verification)
+│   ├── signup/page.tsx            # Signup with auto role selection
 │   └── dashboard/
-│       ├── client/
-│       │   ├── layout.tsx         # ProtectedRoute(client)
-│       │   └── page.tsx           # Client dashboard
-│       ├── maid/
-│       │   ├── layout.tsx         # ProtectedRoute(maid)
-│       │   └── page.tsx           # Maid dashboard
-│       └── admin/
-│           ├── layout.tsx         # ProtectedRoute(admin)
-│           └── page.tsx           # Admin dashboard
-├── lib/api.ts                     # Axios client
-└── store/authStore.ts             # (deprecated — use AuthContext)
+│       ├── client/                # find-maids (Leaflet Map), bookings, support, profile
+│       ├── maid/                  # bookings (accept/decline), profile, location
+│       └── admin/                 # users, bookings, tickets, settings
 ```
 
 ## Current Progress
-- [x] Next.js frontend with custom Socket.io server
-- [x] FastAPI backend (`app/core`, `app/routes`, `app/services`)
-- [x] Supabase Schema: RLS, auto-profile trigger, review rating trigger
-- [x] Landing page (animated, Tailwind + Framer Motion)
-- [x] Auth backend: signup/login/logout/resend/forgot-password with OTP
-- [x] Email: Resend → SMTP fallback
-- [x] Rate Limiting: Per-IP + Per-device (sliding 15-min window)
-- [x] AuthContext (React Context) + ProtectedRoute
-- [x] DashboardSidebar (role-aware nav)
-- [x] 3 role-based route groups: /dashboard/client, /dashboard/maid, /dashboard/admin
-- [x] Login/Signup/ForgotPassword pages (using AuthContext)
-- [x] OTP Verification for Signup and Forgot Password flows
-- [ ] Maid search & booking flow
-- [ ] Profile management
+- [x] Custom FastAPI Auth with JWT, OTP, and sliding rate limiters.
+- [x] Unverified user redirection (auto opens OTP screen on login attempt).
+- [x] Profile Management & Settings Pages for Admin, Client, Maid.
+- [x] Mobile-first UI Architecture (MobileNav + DashboardSidebar).
+- [x] Adaptive Animations (Framer Motion gated by device tiering).
+- [x] Location-based Maid Search (Haversine distance calculation in FastAPI + Leaflet JS UI).
+- [x] Support Ticketing System (API & UI).
+- [x] Booking System & Dashboards (API & UI).
+- [ ] Implement actual booking creation flow from client search.
+- [ ] Implement Accept/Decline action handlers for Maid.
 
 ## User Roles
-1. **Admin**: Manage users, monitor bookings, resolve complaints, view reports.
-2. **Maid**: Profile, skills/pricing, availability slots, accept/reject bookings.
-3. **Client**: Search maids, book time slots, manage bookings, leave reviews.
+1. **Admin**: Manage users, monitor bookings, resolve tickets, view statistics.
+2. **Maid**: Profile setup (skills, hourly rate, radius), manage bookings.
+3. **Client**: Search maids (proximity), book services, manage profile, submit tickets.
 
 > **CRITICAL RULE**: Always read this `Memory.md` before making any project changes.
