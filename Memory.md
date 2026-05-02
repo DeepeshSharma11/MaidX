@@ -10,11 +10,17 @@ MaidX is an online service platform connecting domestic workers (maids) with cli
 
 ## Current Progress
 - [x] Initialized Next.js frontend with custom Socket.io server
-- [x] Initialized FastAPI backend environment
-- [x] Created full Supabase PostgreSQL Schema (`backend/db/schema.sql`)
-- [x] Developed animated, modern Landing Page with Tailwind & Framer Motion
-- [ ] Connect FastAPI to Supabase DB
-- [ ] Implement Auth flows (Login / Signup)
+- [x] Initialized FastAPI backend with app structure (`app/core`, `app/routes`, `app/services`)
+- [x] Supabase PostgreSQL Schema with RLS, auto-profile trigger, review rating trigger
+- [x] Animated Landing Page (Tailwind, Framer Motion, Lucide icons)
+- [x] Auth backend: Supabase Auth signup/login/logout/resend/forgot-password
+- [x] Email: Resend primary → Google SMTP fallback with HTML branded templates
+- [x] Rate Limiting: Per-IP + Per-device fingerprint (sliding 15-min window in Supabase table)
+- [x] Frontend: Login page, Signup page (with role picker), Forgot Password page
+- [x] Zustand auth store (persisted) + Axios client with Bearer token interceptor
+- [ ] Auth callback handler (Supabase email confirmation redirect)
+- [ ] Role-based dashboards (Client / Maid / Admin)
+- [ ] Maid search & booking flow
 
 ## User Roles
 1. **Admin**: Manage users, monitor bookings, resolve complaints, view analytical reports.

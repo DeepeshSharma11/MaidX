@@ -1,7 +1,17 @@
 from supabase import create_client, Client
 from app.core.config import get_settings
 
-_settings = get_settings()
+_client: Client | None = None
 
-# Admin client — bypasses RLS. Use ONLY server-side.
-supabase: Client = create_client(_settings.SUPABASE_URL, _settings.SUPABASE_SERVICE_ROLE_KEY)
+
+def get_supabase() -> Client:
+    """Lazy-init Supabase client. Crashes only when actually called, not at import."""
+    global _client
+    if _client is None:
+        s = get_settings()
+        _client = create_client(s.SUPABASE_URL, s.SUPABASE_SERVICE_ROLE_KEY)
+    return _client
+
+
+# Backward-compat alias — use get_supabase() in new code
+supabase = property(lambda self: get_supabase())  # type: ignore

@@ -6,7 +6,7 @@ Window: sliding 15-minute window.
 from datetime import datetime, timedelta, timezone
 from fastapi import Request, HTTPException, status
 
-from app.core.supabase_client import supabase
+from app.core.supabase_client import get_supabase
 
 # Config: max attempts per window per action
 LIMITS = {
@@ -37,7 +37,7 @@ def check_rate_limit(request: Request, action: str) -> None:
 
     for identifier in _get_identifiers(request):
         result = (
-            supabase.table("rate_limits")
+            get_supabase().table("rate_limits")
             .select("id, attempt_count, window_start")
             .eq("identifier", identifier)
             .eq("action", action)
@@ -58,13 +58,13 @@ def check_rate_limit(request: Request, action: str) -> None:
                 )
 
             # Increment count
-            supabase.table("rate_limits").update(
+            get_supabase().table("rate_limits").update(
                 {"attempt_count": count + 1}
             ).eq("id", row["id"]).execute()
 
         else:
             # First attempt in window
-            supabase.table("rate_limits").insert({
+            get_supabase().table("rate_limits").insert({
                 "identifier": identifier,
                 "action": action,
                 "attempt_count": 1,

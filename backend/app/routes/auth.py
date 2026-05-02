@@ -10,7 +10,7 @@ import logging
 from fastapi import APIRouter, Request, HTTPException, status
 from pydantic import BaseModel, EmailStr
 
-from app.core.supabase_client import supabase
+from app.core.supabase_client import get_supabase
 from app.core.config import get_settings
 from app.services.rate_limiter import check_rate_limit
 from app.services.email import send_welcome_email
@@ -49,7 +49,7 @@ async def signup(body: SignupRequest, request: Request):
     # We override with our branded email via the email hook if configured,
     # or rely on Supabase's SMTP in their dashboard.
     try:
-        response = supabase.auth.sign_up({
+        response = get_supabase().auth.sign_up({
             "email": body.email,
             "password": body.password,
             "options": {
@@ -84,7 +84,7 @@ async def login(body: LoginRequest, request: Request):
     check_rate_limit(request, "login")
 
     try:
-        response = supabase.auth.sign_in_with_password({
+        response = get_supabase().auth.sign_in_with_password({
             "email": body.email,
             "password": body.password,
         })
@@ -101,7 +101,7 @@ async def login(body: LoginRequest, request: Request):
         )
 
     # Fetch profile for role
-    profile = supabase.table("profiles").select("role").eq("id", response.user.id).single().execute()
+    profile = get_supabase().table("profiles").select("role").eq("id", response.user.id).single().execute()
 
     return {
         "access_token": response.session.access_token,
@@ -121,7 +121,7 @@ async def logout(request: Request):
     token = auth_header.replace("Bearer ", "").strip()
     if token:
         try:
-            supabase.auth.sign_out()
+            get_supabase().auth.sign_out()
         except Exception:
             pass
     return {"message": "Logged out successfully."}
@@ -131,7 +131,7 @@ async def logout(request: Request):
 async def resend_verification(body: EmailRequest, request: Request):
     check_rate_limit(request, "signup")
     try:
-        supabase.auth.resend({
+        get_supabase().auth.resend({
             "type": "signup",
             "email": body.email,
         })
@@ -144,7 +144,7 @@ async def resend_verification(body: EmailRequest, request: Request):
 async def forgot_password(body: EmailRequest, request: Request):
     check_rate_limit(request, "forgot_password")
     try:
-        supabase.auth.reset_password_email(
+        get_supabase().auth.reset_password_email(
             body.email,
             options={"redirect_to": f"{settings.FRONTEND_URL}/auth/reset-password"},
         )
