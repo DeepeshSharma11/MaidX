@@ -9,7 +9,7 @@ export default function MaidLayout({ children }: { children: React.ReactNode }) 
     <ProtectedRoute allowedRoles={["maid"]}>
       <div className="flex min-h-screen bg-slate-50 dark:bg-zinc-950 pb-16 md:pb-0">
         <DashboardSidebar />
-        <main className="flex-1 md:ml-64">{children}</main>
+        <main className="flex-1 md:ml-64 min-w-0 overflow-x-hidden">{children}</main>
         <MobileNav />
       </div>
     </ProtectedRoute>
