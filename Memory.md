@@ -43,14 +43,14 @@ src/
 - [x] FastAPI backend (`app/core`, `app/routes`, `app/services`)
 - [x] Supabase Schema: RLS, auto-profile trigger, review rating trigger
 - [x] Landing page (animated, Tailwind + Framer Motion)
-- [x] Auth backend: signup/login/logout/resend/forgot-password
+- [x] Auth backend: signup/login/logout/resend/forgot-password with OTP
 - [x] Email: Resend → SMTP fallback
 - [x] Rate Limiting: Per-IP + Per-device (sliding 15-min window)
 - [x] AuthContext (React Context) + ProtectedRoute
 - [x] DashboardSidebar (role-aware nav)
 - [x] 3 role-based route groups: /dashboard/client, /dashboard/maid, /dashboard/admin
 - [x] Login/Signup/ForgotPassword pages (using AuthContext)
-- [ ] Auth callback handler (Supabase email confirmation redirect)
+- [x] OTP Verification for Signup and Forgot Password flows
 - [ ] Maid search & booking flow
 - [ ] Profile management
 
