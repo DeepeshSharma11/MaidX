@@ -14,7 +14,7 @@ export default function Home() {
       <nav className="fixed w-full top-0 z-50 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-white/50 dark:bg-zinc-950/50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="MaidX Logo" width={120} height={40} className="h-8 w-auto object-contain" />
+            <Image src="/logo.png" alt="MaidX Logo" width={120} height={40} className="h-8 w-auto object-contain" priority loading="eager" />
           </div>
           <div className="flex items-center gap-4">
             {authLoading ? (

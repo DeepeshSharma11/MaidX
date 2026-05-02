@@ -15,11 +15,27 @@ async def get_admin_stats():
     bookings_res = db.table("bookings").select("id", count="exact").execute()
     tickets_res = db.table("tickets").select("id", count="exact").eq("status", "open").execute()
 
+    # Fetch recent bookings for activity
+    activity_res = db.table("bookings").select("id, status, created_at, client_id").order("created_at", desc=True).limit(5).execute()
+    activity = []
+    if activity_res.data:
+        client_ids = list(set([b["client_id"] for b in activity_res.data]))
+        profiles_res = db.table("profiles").select("id, full_name").in_("id", client_ids).execute()
+        profile_map = {p["id"]: p["full_name"] for p in profiles_res.data}
+        
+        for b in activity_res.data:
+            activity.append({
+                "id": b["id"],
+                "text": f"Booking {b['status']} by {profile_map.get(b['client_id'], 'Unknown')}",
+                "created_at": b["created_at"]
+            })
+
     return {
         "total_users": users_res.count if hasattr(users_res, 'count') else len(users_res.data),
         "active_maids": maids_res.count if hasattr(maids_res, 'count') else len(maids_res.data),
         "total_bookings": bookings_res.count if hasattr(bookings_res, 'count') else len(bookings_res.data),
         "open_tickets": tickets_res.count if hasattr(tickets_res, 'count') else len(tickets_res.data),
+        "recent_activity": activity
     }
 
 @router.get("/users", dependencies=[Depends(require_role(["admin"]))])
