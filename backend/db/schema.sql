@@ -39,13 +39,22 @@ CREATE TABLE IF NOT EXISTS profiles (
 -- Auto-create profile on new user signup
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
+DECLARE
+    _role user_role := 'client';
+    _raw_role TEXT;
 BEGIN
+    _raw_role := NEW.raw_user_meta_data->>'role';
+    IF _raw_role IN ('admin', 'maid', 'client') THEN
+        _role := _raw_role::user_role;
+    END IF;
+
     INSERT INTO profiles (id, role, full_name)
     VALUES (
         NEW.id,
-        COALESCE(NEW.raw_user_meta_data->>'role', 'client')::user_role,
+        _role,
         COALESCE(NEW.raw_user_meta_data->>'full_name', '')
-    );
+    )
+    ON CONFLICT (id) DO NOTHING;
     RETURN NEW;
 END;
 $$;
