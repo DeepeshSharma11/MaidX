@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { Suspense, useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Loader2, Star, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, Loader2, CheckCircle2, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
 
@@ -14,7 +14,7 @@ const ROLES = [
   { value: "maid", label: "I provide services 🧹", desc: "Offer your professional skills" },
 ];
 
-export default function SignupPage() {
+function SignupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading, signup } = useAuth();
@@ -309,5 +309,13 @@ export default function SignupPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 dark:bg-zinc-950 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-indigo-500" /></div>}>
+      <SignupContent />
+    </Suspense>
   );
 }

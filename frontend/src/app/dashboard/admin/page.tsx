@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 export default function AdminOverviewPage() {
   const { user } = useAuth();
   const tier = useDeviceTier();
-  const [stats, setStats] = useState({ total_users: 0, active_maids: 0, total_bookings: 0, open_tickets: 0 });
+  const [stats, setStats] = useState({ total_users: 0, active_maids: 0, total_bookings: 0, open_tickets: 0, recent_activity: [] as any[] });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -75,15 +75,28 @@ export default function AdminOverviewPage() {
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4">
         <h2 className="text-lg font-bold text-zinc-900 dark:text-white mb-4">Recent Activity</h2>
         <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="flex items-start gap-3">
-              <div className="w-2 h-2 mt-2 rounded-full bg-indigo-500 shrink-0" />
-              <div>
-                <p className="text-sm text-zinc-900 dark:text-white">New booking created by <strong>John Doe</strong></p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">2 hours ago</p>
-              </div>
-            </div>
-          ))}
+          {stats.recent_activity && stats.recent_activity.length > 0 ? (
+            stats.recent_activity.map((act: any) => {
+              const date = new Date(act.created_at);
+              const now = new Date();
+              const diffMs = now.getTime() - date.getTime();
+              const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+              const diffMins = Math.floor(diffMs / (1000 * 60));
+              const timeStr = diffHours > 24 ? `${Math.floor(diffHours/24)} days ago` : diffHours > 0 ? `${diffHours} hours ago` : `${diffMins} mins ago`;
+
+              return (
+                <div key={act.id} className="flex items-start gap-3">
+                  <div className="w-2 h-2 mt-2 rounded-full bg-indigo-500 shrink-0" />
+                  <div>
+                    <p className="text-sm text-zinc-900 dark:text-white" dangerouslySetInnerHTML={{__html: act.text.replace(/by (.*)/, 'by <strong>$1</strong>')}}></p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{timeStr}</p>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <p className="text-sm text-zinc-500">No recent activity.</p>
+          )}
         </div>
       </div>
     </div>
