@@ -13,6 +13,7 @@ LIMITS = {
     "signup": 5,
     "login": 10,
     "forgot_password": 3,
+    "otp_verify": 10,  # Higher limit — user may mistype OTP
 }
 WINDOW_MINUTES = 15
 

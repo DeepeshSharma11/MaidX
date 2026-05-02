@@ -117,7 +117,7 @@ async def signup(body: SignupRequest, request: Request):
 @router.post("/verify-otp")
 async def verify_signup_otp(body: VerifyOtpRequest, request: Request):
     """Verify signup OTP to activate account."""
-    check_rate_limit(request, "signup")
+    check_rate_limit(request, "otp_verify")
 
     if not verify_otp(body.email, body.otp, "signup_verify"):
         raise HTTPException(status_code=400, detail="Invalid or expired OTP.")
@@ -131,7 +131,7 @@ async def verify_signup_otp(body: VerifyOtpRequest, request: Request):
 
 @router.post("/resend-otp")
 async def resend_otp(body: EmailRequest, request: Request):
-    check_rate_limit(request, "signup")
+    check_rate_limit(request, "otp_verify")
     otp = generate_otp()
     store_otp(body.email, otp, "signup_verify")
     send_otp_email(body.email, otp)
