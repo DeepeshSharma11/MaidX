@@ -37,6 +37,10 @@ CREATE TABLE IF NOT EXISTS profiles (
     rating DECIMAL(3, 2) DEFAULT 0.0,
     reviews_count INT DEFAULT 0,
     is_verified BOOLEAN DEFAULT FALSE,
+    lat DECIMAL(10, 8),
+    lng DECIMAL(11, 8),
+    address TEXT,
+    service_radius_km INT DEFAULT 5,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );

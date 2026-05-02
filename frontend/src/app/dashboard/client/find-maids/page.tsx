@@ -1,8 +1,11 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
-import { MapPin, Search, Star, Clock, Filter, ChevronRight } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { MapPin, Search, Star, Clock, Filter, ChevronRight, Loader2 } from "lucide-react";
+import api from "@/lib/api";
+import { useDeviceTier } from "@/hooks/useDeviceTier";
+import { motion } from "framer-motion";
 
 // SSR disabled — Leaflet needs window
 const LocationPicker = dynamic(() => import("@/components/LocationPicker"), { ssr: false });
@@ -19,14 +22,6 @@ interface Maid {
   isVerified: boolean;
 }
 
-// Mock maids — replace with API call
-const MOCK_MAIDS: Maid[] = [
-  { id: "1", name: "Priya Sharma", rating: 4.9, reviews: 124, distance: "0.8 km", hourlyRate: 150, skills: ["Cleaning", "Cooking", "Laundry"], avatar: "PS", isVerified: true },
-  { id: "2", name: "Anjali Devi", rating: 4.7, reviews: 89, distance: "1.2 km", hourlyRate: 120, skills: ["Cleaning", "Baby Care"], avatar: "AD", isVerified: true },
-  { id: "3", name: "Sunita Yadav", rating: 4.8, reviews: 201, distance: "1.5 km", hourlyRate: 180, skills: ["Cooking", "Cleaning", "Elderly Care"], avatar: "SY", isVerified: false },
-  { id: "4", name: "Rekha Patel", rating: 4.6, reviews: 56, distance: "2.1 km", hourlyRate: 130, skills: ["Cleaning", "Laundry"], avatar: "RP", isVerified: true },
-];
-
 const SKILL_FILTERS = ["All", "Cleaning", "Cooking", "Laundry", "Baby Care", "Elderly Care"];
 
 const AVATAR_COLORS = [
@@ -39,10 +34,43 @@ export default function FindMaidsPage() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [showMap, setShowMap] = useState(true);
   const [searchRadius, setSearchRadius] = useState(5);
+  
+  const [maids, setMaids] = useState<Maid[]>([]);
+  const [loading, setLoading] = useState(false);
+  const tier = useDeviceTier();
 
-  const filteredMaids = activeFilter === "All"
-    ? MOCK_MAIDS
-    : MOCK_MAIDS.filter(m => m.skills.includes(activeFilter));
+  const fetchMaids = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (location) {
+        params.append("lat", location.lat.toString());
+        params.append("lng", location.lng.toString());
+      }
+      params.append("radius", searchRadius.toString());
+      if (activeFilter !== "All") {
+        params.append("skill", activeFilter);
+      }
+      
+      const { data } = await api.get(`/maids?${params.toString()}`);
+      setMaids(data.maids || []);
+    } catch (err) {
+      console.error("Error fetching maids:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [location, searchRadius, activeFilter]);
+
+  useEffect(() => {
+    fetchMaids();
+  }, [fetchMaids]);
+
+  const ItemWrapper = tier === "low" ? "div" : motion.div;
+  const animProps = tier === "low" ? {} : {
+    initial: { opacity: 0, y: 10 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.2 }
+  };
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -115,7 +143,7 @@ export default function FindMaidsPage() {
         {/* Results header */}
         <div className="flex items-center justify-between">
           <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
-            {filteredMaids.length} maids available
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : `${maids.length} maids available`}
           </p>
           <button className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
             <Filter className="w-3.5 h-3.5" />
@@ -125,9 +153,11 @@ export default function FindMaidsPage() {
 
         {/* Maid Cards */}
         <div className="space-y-3 pb-20">
-          {filteredMaids.map((maid, i) => (
-            <div
+          {!loading && maids.map((maid, i) => (
+            <ItemWrapper
               key={maid.id}
+              {...animProps}
+              transition={tier !== "low" ? { delay: i * 0.05 } : undefined}
               className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 active:scale-[0.99] transition-transform cursor-pointer"
             >
               <div className="flex items-start gap-3">
@@ -176,7 +206,7 @@ export default function FindMaidsPage() {
                   </button>
                 </div>
               </div>
-            </div>
+            </ItemWrapper>
           ))}
         </div>
       </div>

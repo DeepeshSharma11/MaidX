@@ -1,23 +1,55 @@
 "use client";
 
-import { useState } from "react";
-import { Search, MoreVertical, Filter } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, MoreVertical, Filter, Loader2 } from "lucide-react";
+import api from "@/lib/api";
+import { useDeviceTier } from "@/hooks/useDeviceTier";
+import { motion } from "framer-motion";
 
-const MOCK_USERS = [
-  { id: "1", name: "John Doe", email: "john@example.com", role: "client", status: "active" },
-  { id: "2", name: "Anita Smith", email: "anita@example.com", role: "maid", status: "active", verified: true },
-  { id: "3", name: "David Kim", email: "david@example.com", role: "client", status: "inactive" },
-  { id: "4", name: "Priya Sharma", email: "priya@example.com", role: "maid", status: "active", verified: false },
-];
+interface UserData {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+  verified: boolean;
+}
 
 export default function AdminUsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [users, setUsers] = useState<UserData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const tier = useDeviceTier();
 
-  const filteredUsers = MOCK_USERS.filter((u) => 
-    u.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    u.email.toLowerCase().includes(searchTerm.toLowerCase())
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const { data } = await api.get("/admin/users");
+        setUsers(data.users || []);
+      } catch (err) {
+        console.error("Failed to fetch users", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchUsers();
+  }, []);
+
+  const filteredUsers = users.filter((u) => 
+    u.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    u.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const ItemWrapper = tier === "low" ? "div" : motion.div;
+  const animProps = tier === "low" ? {} : {
+    initial: { opacity: 0, x: -10 },
+    animate: { opacity: 1, x: 0 },
+    transition: { duration: 0.2 }
+  };
+
+  if (loading) {
+    return <div className="p-8 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-indigo-500" /></div>;
+  }
   return (
     <div className="p-4 md:p-8 space-y-6">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -54,14 +86,19 @@ export default function AdminUsersPage() {
 
         {/* List */}
         <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
-          {filteredUsers.map((user) => (
-            <div key={user.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 items-center">
+          {filteredUsers.map((user, idx) => (
+            <ItemWrapper 
+              key={user.id} 
+              {...animProps}
+              transition={tier !== "low" ? { delay: idx * 0.05, duration: 0.2 } : undefined}
+              className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 items-center"
+            >
               <div className="col-span-1 md:col-span-4 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold">
-                  {user.name.charAt(0)}
+                  {user.name ? user.name.charAt(0) : '?'}
                 </div>
                 <div>
-                  <p className="font-medium text-sm text-zinc-900 dark:text-white">{user.name}</p>
+                  <p className="font-medium text-sm text-zinc-900 dark:text-white">{user.name || "Unknown"}</p>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">{user.email}</p>
                 </div>
               </div>
@@ -92,7 +129,7 @@ export default function AdminUsersPage() {
                   <MoreVertical className="w-5 h-5" />
                 </button>
               </div>
-            </div>
+            </ItemWrapper>
           ))}
         </div>
       </div>

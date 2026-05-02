@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routes.auth import router as auth_router
+from app.routes.admin import router as admin_router
+from app.routes.maids import router as maids_router
+from app.routes.profile import router as profile_router
 
 app = FastAPI(
     title="MaidX API",
@@ -18,6 +21,9 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(admin_router)
+app.include_router(maids_router)
+app.include_router(profile_router)
 
 
 @app.get("/")
