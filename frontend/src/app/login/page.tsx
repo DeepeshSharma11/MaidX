@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2, Star } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import api from "@/lib/api";
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,6 +23,13 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
+      const { data } = await api.post("/auth/login", { email, password });
+      if (data.requires_otp) {
+        // Unverified account — go to signup OTP screen with email prefilled
+        router.push(`/signup?email=${encodeURIComponent(email)}&step=otp`);
+        return;
+      }
+      // Normal login — let AuthContext set user state
       await login(email, password);
     } catch (err: any) {
       setError(err.response?.data?.detail ?? "Login failed. Please try again.");

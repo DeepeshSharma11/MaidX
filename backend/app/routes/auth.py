@@ -8,6 +8,7 @@ Flow:
 import logging
 from datetime import datetime, timezone
 from fastapi import APIRouter, Request, Response, HTTPException, status
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, EmailStr
 
 from app.core.supabase_client import get_supabase
@@ -156,7 +157,18 @@ async def login(body: LoginRequest, request: Request, response: Response):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password.")
         
     if not user["is_active"]:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Please verify your email first.")
+        # Resend OTP and tell frontend to show verification screen
+        otp = generate_otp()
+        store_otp(body.email, otp, "signup_verify")
+        send_otp_email(body.email, otp)
+        return JSONResponse(
+            status_code=200,
+            content={
+                "requires_otp": True,
+                "email": body.email,
+                "message": "Your email is not verified. A new OTP has been sent.",
+            }
+        )
 
     # Fetch profile
     profile_res = db.table("profiles").select("role, full_name").eq("id", user["id"]).execute()

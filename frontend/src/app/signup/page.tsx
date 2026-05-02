@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2, Star, CheckCircle2, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -15,11 +15,17 @@ const ROLES = [
 
 export default function SignupPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { signup } = useAuth();
-  const [step, setStep] = useState<"form" | "otp" | "success">("form");
+
+  // If redirected from login with unverified account
+  const urlEmail = searchParams.get("email") ?? "";
+  const urlStep = searchParams.get("step") as "form" | "otp" | null;
+
+  const [step, setStep] = useState<"form" | "otp" | "success">(urlStep === "otp" ? "otp" : "form");
   const [role, setRole] = useState("client");
   const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(urlEmail);
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);

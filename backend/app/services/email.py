@@ -50,10 +50,17 @@ def _send_via_smtp(to: str, subject: str, html: str) -> bool:
 
 
 def send_email(to: str, subject: str, html: str) -> bool:
-    """Try Resend first, fall back to SMTP."""
+    """Try Resend first, fall back to SMTP, then console log for dev."""
     if _send_via_resend(to, subject, html):
         return True
-    return _send_via_smtp(to, subject, html)
+    if _send_via_smtp(to, subject, html):
+        return True
+    # Dev fallback: extract OTP from HTML and log it
+    import re
+    otp_match = re.search(r'\b\d{6}\b', html)
+    if otp_match:
+        logger.warning(f"⚠️  EMAIL FAILED — DEV MODE OTP for {to}: {otp_match.group()}")
+    return False
 
 
 # ── Email Templates ──────────────────────────────────────
