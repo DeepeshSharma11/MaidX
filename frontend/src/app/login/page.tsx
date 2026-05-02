@@ -61,7 +61,7 @@ export default function LoginPage() {
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl shadow-zinc-200/50 dark:shadow-zinc-900/50 p-8">
           {/* Logo */}
           <div className="flex items-center gap-2 mb-8">
-            <Image src="/logo.png" alt="MaidX Logo" width={120} height={40} className="h-8 w-auto object-contain" />
+            <Image src="/logo.png" alt="MaidX Logo" width={120} height={40} className="h-8 w-auto object-contain dark:bg-white/90 dark:px-2 dark:py-1 dark:rounded-lg" />
           </div>
 
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white mb-1">Welcome back</h1>

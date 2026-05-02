@@ -54,7 +54,7 @@ export default function DashboardSidebar() {
       {/* Logo */}
       <div className="p-5 border-b border-zinc-100 dark:border-zinc-800">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="MaidX Logo" width={100} height={32} className="h-7 w-auto object-contain" />
+          <Image src="/logo.png" alt="MaidX Logo" width={100} height={32} className="h-7 w-auto object-contain dark:bg-white/90 dark:px-2 dark:py-1 dark:rounded-lg" />
         </Link>
       </div>
 
