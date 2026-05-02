@@ -1,5 +1,7 @@
 "use client";
 
+import "leaflet/dist/leaflet.css";
+
 import { useEffect, useRef } from "react";
 import { MapPin } from "lucide-react";
 
@@ -28,7 +30,6 @@ export default function LocationPicker({
     if (typeof window === "undefined" || mapRef.current) return;
 
     const L = require("leaflet");
-    require("leaflet/dist/leaflet.css");
 
     // Fix default icon paths in Next.js
     delete (L.Icon.Default.prototype as any)._getIconUrl;
