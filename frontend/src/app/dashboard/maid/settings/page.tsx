@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useDeviceTier } from "@/hooks/useDeviceTier";
 import { motion } from "framer-motion";
-import { Save, Loader2, Key, Bell, CheckCircle2, Eye, EyeOff, Shield } from "lucide-react";
+import { Save, Loader2, Key, Bell, CheckCircle2, Eye, EyeOff, Shield, LogOut } from "lucide-react";
 import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 
@@ -17,7 +17,7 @@ function Toggle({ enabled, onChange }: { enabled: boolean; onChange: (v: boolean
 }
 
 export default function MaidSettingsPage() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const tier = useDeviceTier();
 
   const [notifEnabled, setNotifEnabled] = useState(true);
@@ -172,6 +172,21 @@ export default function MaidSettingsPage() {
             <p className="font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider text-xs">Professional</p>
           </div>
         </div>
+      </ItemWrapper>
+      {/* Danger Zone */}
+      <ItemWrapper {...animProps} transition={tier !== "low" ? { delay: 0.3 } : undefined}
+        className="bg-white dark:bg-zinc-900 border border-red-200 dark:border-red-900/40 rounded-2xl p-5 md:p-8 space-y-4">
+        <h2 className="text-base font-bold text-red-600 dark:text-red-400 flex items-center gap-2">
+          <LogOut className="w-5 h-5" /> Account
+        </h2>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">Log out from your account on this device.</p>
+        <button
+          type="button"
+          onClick={logout}
+          className="flex items-center gap-2 text-red-600 dark:text-red-400 border border-red-300 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+        >
+          <LogOut className="w-4 h-4" /> Log Out
+        </button>
       </ItemWrapper>
     </div>
   );
