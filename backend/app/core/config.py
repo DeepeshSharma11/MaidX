@@ -9,6 +9,10 @@ class Settings(BaseSettings):
     RESEND_API_KEY: str
     RESEND_FROM_EMAIL: str
 
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_USER: str = ""
+    SMTP_PASS: str = ""
+    SMTP_FROM_EMAIL: str = ""
 
 
     JWT_SECRET_KEY: str = "supersecretkey_change_in_production"
