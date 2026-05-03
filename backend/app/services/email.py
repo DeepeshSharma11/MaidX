@@ -1,14 +1,10 @@
-"""
-Email service: Resend primary → Gmail SMTP SSL (port 465) fallback.
-Note: Port 587 (STARTTLS) is blocked on Render free tier.
-      Port 465 (SSL) works on most cloud providers.
-"""
 import logging
 import re
 import ssl
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 
 import resend
 from app.core.config import get_settings
@@ -18,24 +14,33 @@ settings = get_settings()
 
 resend.api_key = settings.RESEND_API_KEY
 
+EMAIL_TIMEOUT = 10  # seconds — max wait for any email provider
+
 
 def _send_via_resend(to: str, subject: str, html: str) -> bool:
-    try:
-        response = resend.Emails.send({
+    def _call():
+        return resend.Emails.send({
             "from": settings.RESEND_FROM_EMAIL,
             "to": [to],
             "subject": subject,
             "html": html,
         })
+    try:
+        with ThreadPoolExecutor(max_workers=1) as ex:
+            future = ex.submit(_call)
+            response = future.result(timeout=EMAIL_TIMEOUT)
         logger.info(f"Email sent via Resend to {to} | id={response.get('id', 'n/a')}")
         return True
+    except FuturesTimeoutError:
+        logger.warning(f"Resend timed out after {EMAIL_TIMEOUT}s for {to}")
+        return False
     except Exception as e:
         logger.warning(f"Resend failed for {to}: {e}")
         return False
 
 
 def _send_via_smtp_ssl(to: str, subject: str, html: str) -> bool:
-    """Gmail SMTP over SSL (port 465) — works where STARTTLS/587 is blocked."""
+    """Gmail SMTP over SSL port 465 with explicit timeout."""
     try:
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
@@ -44,16 +49,23 @@ def _send_via_smtp_ssl(to: str, subject: str, html: str) -> bool:
         msg.attach(MIMEText(html, "html"))
 
         context = ssl.create_default_context()
-        # Port 465 = SSL from the start (no STARTTLS handshake)
-        with smtplib.SMTP_SSL(settings.SMTP_HOST, 465, context=context) as server:
+        with smtplib.SMTP_SSL(
+            settings.SMTP_HOST, 465,
+            context=context,
+            timeout=EMAIL_TIMEOUT       # <-- socket-level timeout
+        ) as server:
             server.login(settings.SMTP_USER, settings.SMTP_PASS)
             server.sendmail(settings.SMTP_FROM_EMAIL, to, msg.as_string())
 
         logger.info(f"Email sent via SMTP SSL to {to}")
         return True
-    except Exception as e:
-        logger.error(f"SMTP SSL fallback failed: {e}")
+    except TimeoutError:
+        logger.error(f"SMTP SSL timed out after {EMAIL_TIMEOUT}s for {to}")
         return False
+    except Exception as e:
+        logger.error(f"SMTP SSL failed: {e}")
+        return False
+
 
 
 def send_email(to: str, subject: str, html: str) -> bool:

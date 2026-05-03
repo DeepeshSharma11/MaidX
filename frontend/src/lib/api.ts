@@ -9,7 +9,8 @@ export const setAccessToken = (token: string | null) => {
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000",
   headers: { "Content-Type": "application/json" },
-  withCredentials: true, // Crucial for sending httpOnly cookies
+  withCredentials: true,
+  timeout: 15000, // 15s — prevents UI from hanging on slow/dead backend
 });
 
 api.interceptors.request.use((config) => {
