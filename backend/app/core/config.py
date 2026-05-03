@@ -19,7 +19,8 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
 
-    FRONTEND_URL: str = "https://maid-x.vercel.app"
+    FRONTEND_URL: str = "http://localhost:3000"
+    ALLOWED_ORIGINS: str = "http://localhost:3000,https://maidx-9jk3.onrender.com,https://maid-x.vercel.app"
 
     class Config:
         env_file = ".env"

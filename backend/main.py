@@ -14,9 +14,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
+from app.core.config import get_settings
+
+settings = get_settings()
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://maidx-9jk3.onrender.com", "https://maid-x.vercel.app"],
+    allow_origins=[origin.strip() for origin in settings.ALLOWED_ORIGINS.split(",")],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
