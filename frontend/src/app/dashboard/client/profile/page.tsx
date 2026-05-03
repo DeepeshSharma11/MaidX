@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { useDeviceTier } from "@/hooks/useDeviceTier";
 import { motion } from "framer-motion";
-import { Save, Loader2, User as UserIcon } from "lucide-react";
+import { Save, Loader2, User as UserIcon, LogOut } from "lucide-react";
 import api from "@/lib/api";
 
 export default function ClientProfilePage() {
   const tier = useDeviceTier();
+  const { logout } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -185,13 +187,20 @@ export default function ClientProfilePage() {
             </div>
           </div>
 
-          <div className="pt-4 flex justify-end">
+          <div className="pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <button
+              type="button"
+              onClick={logout}
+              className="flex items-center gap-2 text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 border border-red-200 dark:border-red-900/40 hover:bg-red-50 dark:hover:bg-red-900/20 px-5 py-2.5 rounded-xl text-sm font-medium transition-colors w-full sm:w-auto justify-center"
+            >
+              <LogOut className="w-4 h-4" /> Log Out
+            </button>
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-medium transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-medium transition-colors disabled:opacity-50 w-full sm:w-auto justify-center"
             >
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? "Saved!" : <><Save className="w-4 h-4" /> Save Profile</>}
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? "Saved! ✓" : <><Save className="w-4 h-4" /> Save Profile</>}
             </button>
           </div>
         </form>

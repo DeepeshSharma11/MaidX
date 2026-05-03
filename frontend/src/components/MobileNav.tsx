@@ -63,14 +63,6 @@ export default function MobileNav() {
               </Link>
             );
           })}
-          
-          <button
-            onClick={logout}
-            className="flex flex-col items-center justify-center min-w-[60px] h-12 gap-1 rounded-xl transition-colors text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300"
-          >
-            <LogOut className="w-5 h-5 stroke-2" />
-            <span className="text-[10px] font-medium">Log out</span>
-          </button>
         </div>
       </nav>
     </div>
