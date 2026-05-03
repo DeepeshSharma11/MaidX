@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { Home, User, Calendar, Settings, HelpCircle, Users, BookOpen, LogOut } from "lucide-react";
+import { Home, User, Calendar, Settings, HelpCircle, Users, BookOpen, LogOut, Search, MapPin } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -14,22 +14,23 @@ interface NavItem {
 const NAV_ITEMS: Record<string, NavItem[]> = {
   client: [
     { label: "Home", href: "/dashboard/client", icon: Home },
-    { label: "Search", href: "/dashboard/client/find-maids", icon: User },
+    { label: "Search", href: "/dashboard/client/find-maids", icon: Search },
     { label: "Bookings", href: "/dashboard/client/bookings", icon: Calendar },
-    { label: "Support", href: "/dashboard/client/support", icon: HelpCircle },
-    { label: "Profile", href: "/dashboard/client/profile", icon: Settings },
+    { label: "Profile", href: "/dashboard/client/profile", icon: User },
+    { label: "Settings", href: "/dashboard/client/settings", icon: Settings },
   ],
   maid: [
     { label: "Home", href: "/dashboard/maid", icon: Home },
-    { label: "Location", href: "/dashboard/maid/location", icon: User },
-    { label: "Bookings", href: "/dashboard/maid/bookings", icon: Calendar },
-    { label: "Profile", href: "/dashboard/maid/profile", icon: Settings },
+    { label: "Bookings", href: "/dashboard/maid/bookings", icon: BookOpen },
+    { label: "Schedule", href: "/dashboard/maid/schedule", icon: Calendar },
+    { label: "Profile", href: "/dashboard/maid/profile", icon: User },
+    { label: "Settings", href: "/dashboard/maid/settings", icon: Settings },
   ],
   admin: [
-    { label: "Overview", href: "/dashboard/admin", icon: Home },
+    { label: "Home", href: "/dashboard/admin", icon: Home },
     { label: "Users", href: "/dashboard/admin/users", icon: Users },
     { label: "Bookings", href: "/dashboard/admin/bookings", icon: BookOpen },
-    { label: "Tickets", href: "/dashboard/admin/tickets", icon: HelpCircle },
+    { label: "Settings", href: "/dashboard/admin/settings", icon: Settings },
   ],
 };
 
