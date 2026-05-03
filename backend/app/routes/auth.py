@@ -194,8 +194,8 @@ async def login(body: LoginRequest, request: Request, response: Response):
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=False,  # Set to True in production with HTTPS
-        samesite="lax",
+        secure=True,
+        samesite="none",
         max_age=7 * 24 * 60 * 60  # 7 days
     )
 
@@ -223,7 +223,7 @@ async def refresh_token(request: Request, response: Response):
     session_res = db.table("sessions").select("*").eq("refresh_token", refresh_token).execute()
     
     if not session_res.data:
-        response.delete_cookie("refresh_token")
+        response.delete_cookie("refresh_token", secure=True, samesite="none")
         raise HTTPException(status_code=401, detail="Invalid refresh token.")
         
     session = session_res.data[0]
@@ -232,7 +232,7 @@ async def refresh_token(request: Request, response: Response):
     expires_at = datetime.fromisoformat(session["expires_at"].replace("Z", "+00:00"))
     if datetime.now(timezone.utc) > expires_at:
         db.table("sessions").delete().eq("id", session["id"]).execute()
-        response.delete_cookie("refresh_token")
+        response.delete_cookie("refresh_token", secure=True, samesite="none")
         raise HTTPException(status_code=401, detail="Refresh token expired.")
 
     # Fetch user profile to recreate token
@@ -268,7 +268,7 @@ async def logout(request: Request, response: Response):
         db = get_supabase()
         db.table("sessions").delete().eq("refresh_token", refresh_token).execute()
         
-    response.delete_cookie("refresh_token")
+    response.delete_cookie("refresh_token", secure=True, samesite="none")
     return {"message": "Logged out successfully."}
 
 
