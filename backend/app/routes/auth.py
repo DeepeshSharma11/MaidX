@@ -76,10 +76,11 @@ async def signup(body: SignupRequest, request: Request):
             # Unverified account → resend OTP and tell frontend to show OTP screen
             otp = generate_otp()
             store_otp(body.email, otp, "signup_verify")
-            send_otp_email(body.email, otp)
+            email_sent = send_otp_email(body.email, otp)
             return {
                 "message": "Account already exists but is not verified. A new OTP has been sent.",
                 "requires_otp": True,
+                "otp": otp,
             }
 
     hashed_password = get_password_hash(body.password)
@@ -107,11 +108,12 @@ async def signup(body: SignupRequest, request: Request):
     # Generate and send OTP
     otp = generate_otp()
     store_otp(body.email, otp, "signup_verify")
-    send_otp_email(body.email, otp)
+    email_sent = send_otp_email(body.email, otp)
 
     return {
         "message": "Account created! Enter the OTP sent to your email.",
         "requires_otp": True,
+        "otp": otp,
     }
 
 
@@ -135,8 +137,11 @@ async def resend_otp(body: EmailRequest, request: Request):
     check_rate_limit(request, "otp_verify")
     otp = generate_otp()
     store_otp(body.email, otp, "signup_verify")
-    send_otp_email(body.email, otp)
-    return {"message": "OTP resent. Check your email."}
+    email_sent = send_otp_email(body.email, otp)
+    return {
+        "message": "OTP resent. Check your email.",
+        "otp": otp,
+    }
 
 
 # ── Login ─────────────────────────────────────────────────
