@@ -82,3 +82,33 @@ async def update_location(body: LocationUpdate, user: dict = Depends(get_current
         raise HTTPException(status_code=500, detail=str(e))
         
     return {"message": "Location updated successfully"}
+
+class AvailabilitySlot(BaseModel):
+    day_of_week: int  # 0=Sun, 6=Sat
+    start_time: str
+    end_time: str
+
+class AvailabilityUpdate(BaseModel):
+    availability: list[AvailabilitySlot]
+
+@router.get("/availability")
+async def get_availability(user: dict = Depends(get_current_user)):
+    db = get_supabase()
+    res = db.table("availability").select("*").eq("maid_id", user["id"]).execute()
+    return {"availability": res.data or []}
+
+@router.post("/availability")
+async def set_availability(body: AvailabilityUpdate, user: dict = Depends(get_current_user)):
+    if user["role"] != "maid":
+        raise HTTPException(status_code=403, detail="Only maids can set availability.")
+    db = get_supabase()
+    # Delete existing and reinsert (upsert pattern)
+    db.table("availability").delete().eq("maid_id", user["id"]).execute()
+    if body.availability:
+        rows = [
+            {"maid_id": user["id"], "day_of_week": s.day_of_week,
+             "start_time": s.start_time, "end_time": s.end_time}
+            for s in body.availability
+        ]
+        db.table("availability").insert(rows).execute()
+    return {"message": "Availability saved.", "count": len(body.availability)}

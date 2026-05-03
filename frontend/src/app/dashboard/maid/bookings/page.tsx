@@ -46,7 +46,7 @@ export default function MaidBookingsPage() {
 
   useEffect(() => { fetchBookings(); }, []);
 
-  const handleAction = async (id: string, action: "confirm" | "cancel") => {
+  const handleAction = async (id: string, action: "confirm" | "cancel" | "complete") => {
     setActionLoading(id + action);
     try {
       await api.patch(`/bookings/${id}/${action}`);
@@ -133,26 +133,24 @@ export default function MaidBookingsPage() {
                   </div>
                 )}
 
-                {/* Actions for pending */}
+                {/* Actions */}
                 {booking.status === "pending" && (
                   <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => handleAction(booking.id, "confirm")}
-                      disabled={!!actionLoading}
-                      className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
-                    >
-                      {actionLoading === booking.id + "confirm"
-                        ? <Loader2 className="w-4 h-4 animate-spin" />
-                        : <><CheckCircle2 className="w-4 h-4" /> Accept</>}
+                    <button onClick={() => handleAction(booking.id, "confirm")} disabled={!!actionLoading}
+                      className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-50">
+                      {actionLoading === booking.id + "confirm" ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CheckCircle2 className="w-4 h-4" /> Accept</>}
                     </button>
-                    <button
-                      onClick={() => handleAction(booking.id, "cancel")}
-                      disabled={!!actionLoading}
-                      className="flex items-center justify-center gap-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-50"
-                    >
-                      {actionLoading === booking.id + "cancel"
-                        ? <Loader2 className="w-4 h-4 animate-spin" />
-                        : <><XCircle className="w-4 h-4" /> Decline</>}
+                    <button onClick={() => handleAction(booking.id, "cancel")} disabled={!!actionLoading}
+                      className="flex items-center justify-center gap-1.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-50">
+                      {actionLoading === booking.id + "cancel" ? <Loader2 className="w-4 h-4 animate-spin" /> : <><XCircle className="w-4 h-4" /> Decline</>}
+                    </button>
+                  </div>
+                )}
+                {booking.status === "confirmed" && (
+                  <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800">
+                    <button onClick={() => handleAction(booking.id, "complete")} disabled={!!actionLoading}
+                      className="w-full flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl text-sm font-medium transition-colors disabled:opacity-50">
+                      {actionLoading === booking.id + "complete" ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CheckCircle2 className="w-4 h-4" /> Mark Complete</>}
                     </button>
                   </div>
                 )}
