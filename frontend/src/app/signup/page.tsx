@@ -54,12 +54,6 @@ function SignupContent() {
     try {
       const { data } = await api.post("/auth/signup", { email, password, full_name: fullName, role });
       if (data.requires_otp) {
-        // If email failed, backend returns otp_fallback — auto-fill boxes
-        if (data.otp_fallback) {
-          const digits = data.otp_fallback.toString().split("").slice(0, 6);
-          setOtp(digits);
-          setError(`⚠️ Email delivery failed. Your OTP is: ${data.otp_fallback} (pre-filled below)`);
-        }
         setStep("otp");
       }
     } catch (err: any) {
