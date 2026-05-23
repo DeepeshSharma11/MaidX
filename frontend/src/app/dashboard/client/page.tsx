@@ -29,7 +29,6 @@ export default function ClientHomePage() {
     transition: { duration: 0.3 }
   };
 
-  const router = useRouter();
 
   useEffect(() => {
     async function checkProfile() {
