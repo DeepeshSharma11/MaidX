@@ -53,6 +53,7 @@ src/
 - [x] Implemented RAG-based AI assistant using Groq Llama-3.3 model for booking automation and booking history checks via floating chatbot drawer interface.
 - [x] Fixed chatbot /chat endpoint backend: added User-Agent header to Groq requests to bypass Cloudflare 403 blocks and fetched email/full_name dynamically to prevent KeyError.
 - [x] Hardened chatbot booking action handler against NoneType/unset hourly_rate values to prevent multiplication TypeErrors.
+- [x] Added maid detail bottom-sheet drawer in client find-maids page (bio, skills, rating, rate, distance, verified badge) with Book Now CTA, and extended /maids API to return bio and city fields.
 
 
 ## User Roles

@@ -48,10 +48,12 @@ async def search_maids(
             "rating": float(p.get("rating", 0) or 0),
             "reviews": p.get("reviews_count", 0) or 0,
             "distance": f"{dist:.1f} km" if dist is not None else "N/A",
-            "hourlyRate": float(p.get("hourly_rate", 0) or 0),
+            "hourlyRate": float(p.get("hourly_rate", 0) or 0) if p.get("hourly_rate") is not None else None,
             "skills": p.get("skills") or [],
             "avatar": p["full_name"][:2].upper() if p.get("full_name") else "MD",
-            "isVerified": p.get("is_verified", False)
+            "isVerified": p.get("is_verified", False),
+            "bio": p.get("bio") or "",
+            "city": p.get("city") or "",
         })
         
     return {"maids": maids}
