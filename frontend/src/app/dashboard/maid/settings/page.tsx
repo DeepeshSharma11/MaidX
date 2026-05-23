@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { useDeviceTier } from "@/hooks/useDeviceTier";
 import { motion } from "framer-motion";
-import { Save, Loader2, Key, Bell, CheckCircle2, Eye, EyeOff, Shield, LogOut } from "lucide-react";
+import { Save, Loader2, Key, Bell, CheckCircle2, Eye, EyeOff, Shield, LogOut, Globe } from "lucide-react";
 import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "@/context/LanguageContext";
 
 function Toggle({ enabled, onChange }: { enabled: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -18,6 +19,7 @@ function Toggle({ enabled, onChange }: { enabled: boolean; onChange: (v: boolean
 
 export default function MaidSettingsPage() {
   const { user, logout } = useAuth();
+  const { language, setLanguage, t } = useTranslation();
   const tier = useDeviceTier();
 
   const [notifEnabled, setNotifEnabled] = useState(true);
@@ -66,7 +68,7 @@ export default function MaidSettingsPage() {
     setSavingPw(true);
     try {
       await api.post("/profile/change-password", { current_password: currentPw, new_password: newPw });
-      setPwSuccess("Password changed successfully!");
+      setPwSuccess(t("pw_updated"));
       setCurrentPw(""); setNewPw(""); setConfirmPw("");
     } catch (err: any) {
       setPwError(err?.response?.data?.detail || "Failed to change password.");
@@ -80,20 +82,57 @@ export default function MaidSettingsPage() {
   return (
     <div className="p-4 md:p-8 space-y-6 pb-24 md:pb-8 max-w-2xl mx-auto md:mx-0">
       <header>
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Settings</h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">Manage your account preferences and security.</p>
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("settings")}</h1>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("manage_account")}</p>
       </header>
 
-      {/* Notification Preferences */}
+      {/* Language Preferences */}
       <ItemWrapper {...animProps} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 md:p-8 space-y-5">
         <h2 className="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-          <Bell className="w-5 h-5 text-emerald-500" /> Notification Preferences
+          <Globe className="w-5 h-5 text-emerald-500" /> {t("language")}
+        </h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 gap-4">
+          <div>
+            <p className="font-medium text-zinc-900 dark:text-white text-sm">{t("select_lang")}</p>
+            <p className="text-xs text-zinc-500 mt-0.5">{t("lang_desc")}</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setLanguage("en")}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                language === "en"
+                  ? "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-100 dark:shadow-none"
+                  : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+              }`}
+            >
+              English
+            </button>
+            <button
+              type="button"
+              onClick={() => setLanguage("hi")}
+              className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                language === "hi"
+                  ? "bg-emerald-600 border-emerald-600 text-white shadow-md shadow-emerald-100 dark:shadow-none"
+                  : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+              }`}
+            >
+              हिंदी (Hindi)
+            </button>
+          </div>
+        </div>
+      </ItemWrapper>
+
+      {/* Notification Preferences */}
+      <ItemWrapper {...animProps} transition={tier !== "low" ? { delay: 0.05 } : undefined} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 md:p-8 space-y-5">
+        <h2 className="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
+          <Bell className="w-5 h-5 text-emerald-500" /> {t("notif_pref")}
         </h2>
 
         <div className="flex items-center justify-between p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
           <div>
-            <p className="font-medium text-zinc-900 dark:text-white text-sm">System Notifications</p>
-            <p className="text-xs text-zinc-500 mt-0.5">Get alerts for new booking requests, messages, and client updates on this device.</p>
+            <p className="font-medium text-zinc-900 dark:text-white text-sm">{t("sys_notif")}</p>
+            <p className="text-xs text-zinc-500 mt-0.5">{t("sys_notif_desc")}</p>
           </div>
           <Toggle enabled={notifEnabled} onChange={(v) => {
             setNotifEnabled(v);
@@ -110,7 +149,7 @@ export default function MaidSettingsPage() {
         <div className="flex justify-end">
           <button type="button" onClick={handleSavePrefs} disabled={saving}
             className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-medium transition-colors disabled:opacity-50">
-            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <><CheckCircle2 className="w-4 h-4" /> Saved!</> : <><Save className="w-4 h-4" /> Save Preferences</>}
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <><CheckCircle2 className="w-4 h-4" /> {t("saved")}</> : <><Save className="w-4 h-4" /> {t("save_pref")}</>}
           </button>
         </div>
       </ItemWrapper>
@@ -118,12 +157,12 @@ export default function MaidSettingsPage() {
       {/* Change Password */}
       <ItemWrapper {...animProps} transition={tier !== "low" ? { delay: 0.1 } : undefined} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 md:p-8 space-y-5">
         <h2 className="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-          <Key className="w-5 h-5 text-emerald-500" /> Change Password
+          <Key className="w-5 h-5 text-emerald-500" /> {t("change_pw")}
         </h2>
 
         <form onSubmit={handleChangePw} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Current Password</label>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">{t("current_pw")}</label>
             <div className="relative">
               <input type={showCurrent ? "text" : "password"} value={currentPw} onChange={e => setCurrentPw(e.target.value)} required className={inputCls + " pr-10"} placeholder="••••••••" />
               <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-3 top-2.5 text-zinc-400">
@@ -132,7 +171,7 @@ export default function MaidSettingsPage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">New Password</label>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">{t("new_pw")}</label>
             <div className="relative">
               <input type={showNew ? "text" : "password"} value={newPw} onChange={e => setNewPw(e.target.value)} required className={inputCls + " pr-10"} placeholder="Min 8 characters" />
               <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-2.5 text-zinc-400">
@@ -141,7 +180,7 @@ export default function MaidSettingsPage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">Confirm New Password</label>
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">{t("confirm_new_pw")}</label>
             <input type="password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)} required className={inputCls} placeholder="Repeat new password" />
           </div>
 
@@ -151,7 +190,7 @@ export default function MaidSettingsPage() {
           <div className="flex justify-end">
             <button type="submit" disabled={savingPw}
               className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl font-medium transition-colors disabled:opacity-50">
-              {savingPw ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Shield className="w-4 h-4" /> Update Password</>}
+              {savingPw ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Shield className="w-4 h-4" /> {t("update_pw")}</>}
             </button>
           </div>
         </form>
@@ -160,32 +199,33 @@ export default function MaidSettingsPage() {
       {/* Account Info */}
       <ItemWrapper {...animProps} transition={tier !== "low" ? { delay: 0.2 } : undefined} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 md:p-8 space-y-3">
         <h2 className="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-          <Shield className="w-5 h-5 text-emerald-500" /> Account Info
+          <Shield className="w-5 h-5 text-emerald-500" /> {t("account_info")}
         </h2>
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800">
-            <p className="text-zinc-500 text-xs mb-1">Name</p>
+            <p className="text-zinc-500 text-xs mb-1">{t("name")}</p>
             <p className="font-medium text-zinc-900 dark:text-white">{user?.full_name || "—"}</p>
           </div>
           <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800">
-            <p className="text-zinc-500 text-xs mb-1">Role</p>
+            <p className="text-zinc-500 text-xs mb-1">{t("role")}</p>
             <p className="font-medium text-emerald-600 dark:text-emerald-400 uppercase tracking-wider text-xs">Professional</p>
           </div>
         </div>
       </ItemWrapper>
+
       {/* Danger Zone */}
       <ItemWrapper {...animProps} transition={tier !== "low" ? { delay: 0.3 } : undefined}
         className="bg-white dark:bg-zinc-900 border border-red-200 dark:border-red-900/40 rounded-2xl p-5 md:p-8 space-y-4">
         <h2 className="text-base font-bold text-red-600 dark:text-red-400 flex items-center gap-2">
-          <LogOut className="w-5 h-5" /> Account
+          <LogOut className="w-5 h-5" /> {t("account")}
         </h2>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">Log out from your account on this device.</p>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("logout_desc")}</p>
         <button
           type="button"
           onClick={logout}
           className="flex items-center gap-2 text-red-600 dark:text-red-400 border border-red-300 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors"
         >
-          <LogOut className="w-4 h-4" /> Log Out
+          <LogOut className="w-4 h-4" /> {t("logout")}
         </button>
       </ItemWrapper>
     </div>

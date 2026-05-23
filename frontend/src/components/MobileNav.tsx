@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "@/context/LanguageContext";
 import { Home, User, Calendar, Settings, Users, BookOpen, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -36,6 +37,7 @@ const NAV_ITEMS: Record<string, NavItem[]> = {
 
 export default function MobileNav() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const pathname = usePathname();
   const role = user?.role ?? "client";
   const items = NAV_ITEMS[role] ?? [];
@@ -62,7 +64,7 @@ export default function MobileNav() {
               >
                 <item.icon className={`w-5 h-5 ${active ? "stroke-[2.5px]" : "stroke-[1.75px]"}`} />
                 <span className={`text-[10px] ${active ? "font-bold" : "font-medium"}`}>
-                  {item.label}
+                  {t(item.label.toLowerCase().replace(" ", "_"))}
                 </span>
                 {/* Pure CSS dot — no framer-motion layoutId, no JS animation */}
                 <span

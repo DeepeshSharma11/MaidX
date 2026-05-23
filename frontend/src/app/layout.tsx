@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "MaidX - Trusted Domestic Help Platform",
   description: "Find trusted domestic help instantly. Connect with verified professionals for cleaning, cooking, and household chores.",
+  icons: {
+    icon: "/logo.png",
+  },
 };
 
 export default function RootLayout({

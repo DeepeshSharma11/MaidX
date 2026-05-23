@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "@/context/LanguageContext";
 import { LogOut, Home, User, Calendar, Settings, HelpCircle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -48,10 +49,15 @@ const ROLE_BADGE: Record<string, { label: string; color: string }> = {
 
 export default function DashboardSidebar() {
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   const pathname = usePathname();
   const role = user?.role ?? "client";
   const items = NAV_ITEMS[role] ?? [];
   const badge = ROLE_BADGE[role];
+
+  const getTranslationKey = (label: string) => {
+    return label.toLowerCase().replace(" ", "_");
+  };
 
   return (
     <aside className="hidden md:flex w-64 h-screen fixed left-0 top-0 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex-col z-40">
@@ -89,7 +95,7 @@ export default function DashboardSidebar() {
             >
               <div className="flex items-center gap-3">
                 <item.icon className={`w-4 h-4 transition-transform duration-200 ${active ? "stroke-[2.5px]" : "group-hover:scale-115 group-hover:text-indigo-500"}`} />
-                <span>{item.label}</span>
+                <span>{t(getTranslationKey(item.label))}</span>
               </div>
               {active && (
                 <motion.div
@@ -111,7 +117,7 @@ export default function DashboardSidebar() {
           className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all"
         >
           <LogOut className="w-4 h-4" />
-          Log out
+          {t("logout")}
         </button>
       </div>
     </aside>
