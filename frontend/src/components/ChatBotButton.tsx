@@ -108,7 +108,7 @@ export default function ChatBotButton() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40 bg-black/40 md:hidden"
+              className="fixed inset-0 z-40 bg-black/50 md:hidden"
               onClick={() => setIsOpen(false)}
             />
 
@@ -145,7 +145,7 @@ export default function ChatBotButton() {
                   <div>
                     <h3 className="font-bold text-sm leading-tight">MaidX AI</h3>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                       <span className="text-[10px] text-indigo-200 font-medium">Online</span>
                     </div>
                   </div>

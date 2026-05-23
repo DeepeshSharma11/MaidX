@@ -4,33 +4,28 @@ import { useState, useEffect } from "react";
 
 export type DeviceTier = "high" | "mid" | "low";
 
-/**
- * Returns a device tier based on hardware concurrency and memory.
- * Can be used to toggle heavy animations off for low-end devices.
- */
-export function useDeviceTier() {
-  const [tier, setTier] = useState<DeviceTier>("mid");
+export function useDeviceTier(): DeviceTier {
+  // Default to "low" — upgrade after hydration. Prevents flash of heavy animations.
+  const [tier, setTier] = useState<DeviceTier>("low");
 
   useEffect(() => {
     if (typeof navigator === "undefined") return;
 
-    let cpuCores = 4;
-    let memory = 4;
+    const cores = navigator.hardwareConcurrency ?? 4;
+    const memory = (navigator as any).deviceMemory ?? 4;
 
-    if ("hardwareConcurrency" in navigator) {
-      cpuCores = navigator.hardwareConcurrency as number;
-    }
+    // Treat save-data / slow connections as low tier
+    const conn = (navigator as any).connection;
+    const slowNetwork = conn && (conn.saveData || ["slow-2g", "2g"].includes(conn.effectiveType));
 
-    if ("deviceMemory" in navigator) {
-      memory = (navigator as any).deviceMemory as number;
-    }
-
-    if (cpuCores >= 8 && memory >= 8) {
-      setTier("high");
-    } else if (cpuCores <= 4 && memory <= 4) {
+    if (slowNetwork) {
       setTier("low");
-    } else {
+    } else if (cores >= 8 && memory >= 8) {
+      setTier("high");
+    } else if (cores >= 6 && memory >= 4) {
       setTier("mid");
+    } else {
+      setTier("low"); // Most budget/mid-range Androids fall here
     }
   }, []);
 

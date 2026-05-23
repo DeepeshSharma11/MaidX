@@ -342,7 +342,7 @@ export default function FindMaidsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setDetailMaid(null)}
-              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+              className="fixed inset-0 z-40 bg-black/50"
             />
 
             {/* Bottom Sheet */}
@@ -350,7 +350,8 @@ export default function FindMaidsPage() {
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 28, stiffness: 260 }}
+              transition={{ type: "tween", duration: 0.22, ease: [0.32, 0.72, 0, 1] }}
+              style={{ willChange: "transform" }}
               className="fixed bottom-16 md:bottom-0 left-0 right-0 z-50 bg-white dark:bg-zinc-900 rounded-t-3xl shadow-2xl max-h-[75vh] md:max-h-[85vh] overflow-y-auto"
             >
               {/* Handle */}
@@ -529,7 +530,7 @@ export default function FindMaidsPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
