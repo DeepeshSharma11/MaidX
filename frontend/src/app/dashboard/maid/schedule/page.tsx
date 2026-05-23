@@ -89,40 +89,45 @@ export default function MaidSchedulePage() {
               className={`bg-white dark:bg-zinc-900 border rounded-2xl p-4 transition-all ${
                 isActive ? "border-emerald-300 dark:border-emerald-700" : "border-zinc-200 dark:border-zinc-800"
               }`}>
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => toggleDay(idx)}
-                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
-                      isActive ? "bg-emerald-600" : "bg-zinc-300 dark:bg-zinc-600"
-                    }`}
-                  >
-                    <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ${isActive ? "translate-x-5" : "translate-x-0"}`} />
-                  </button>
-                  <span className={`font-medium text-sm ${isActive ? "text-zinc-900 dark:text-white" : "text-zinc-400 dark:text-zinc-600"}`}>
-                    {day}
-                  </span>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center justify-between sm:justify-start gap-3 w-full sm:w-auto">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => toggleDay(idx)}
+                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
+                        isActive ? "bg-emerald-600" : "bg-zinc-300 dark:bg-zinc-600"
+                      }`}
+                    >
+                      <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow transition duration-200 ${isActive ? "translate-x-5" : "translate-x-0"}`} />
+                    </button>
+                    <span className={`font-medium text-sm ${isActive ? "text-zinc-900 dark:text-white" : "text-zinc-400 dark:text-zinc-600"}`}>
+                      {day}
+                    </span>
+                  </div>
+                  {!isActive && (
+                    <span className="text-xs text-zinc-400 sm:hidden">Unavailable</span>
+                  )}
                 </div>
 
                 {isActive && (
-                  <div className="flex items-center gap-2 text-sm">
+                  <div className="flex items-center gap-2 text-sm w-full sm:w-auto justify-end sm:justify-start">
                     <Clock className="w-4 h-4 text-emerald-500 shrink-0" />
                     <input
                       type="time" value={slot.start_time}
                       onChange={e => updateSlot(idx, "start_time", e.target.value)}
-                      className="bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-2 py-1 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-2 py-1 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 w-24"
                     />
                     <span className="text-zinc-400">–</span>
                     <input
                       type="time" value={slot.end_time}
                       onChange={e => updateSlot(idx, "end_time", e.target.value)}
-                      className="bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-2 py-1 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg px-2 py-1 text-sm text-zinc-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 w-24"
                     />
                   </div>
                 )}
 
                 {!isActive && (
-                  <span className="text-xs text-zinc-400">Unavailable</span>
+                  <span className="text-xs text-zinc-400 hidden sm:inline">Unavailable</span>
                 )}
               </div>
             </ItemWrapper>

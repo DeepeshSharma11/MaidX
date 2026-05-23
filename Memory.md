@@ -48,6 +48,7 @@ src/
 - [x] Hardened Custom JWT authentication and authorization at production level (DB-level active check, secure reset tokens, Axios refresh serialization, dynamic SMTP SSL/STARTTLS, safe redirection logic, and premium touch-safe/framer-motion navigation effects).
 - [x] Solved page refresh session logout by implementing LocalStorage-based fallback for refresh token rotating sliding sessions across cross-origin deployments.
 - [x] Debugged and refined Maid Dashboard and pages (fixed dynamic Tailwind color class compilation bugs, integrated real-time upcoming bookings feed, and resolved fixed layout sidebar overlaps on desktop viewports).
+- [x] Debugged and refined Client/User Dashboard and pages (implemented client-side Cancel Booking action handler on active bookings list).
 
 
 ## User Roles

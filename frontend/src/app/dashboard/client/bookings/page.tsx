@@ -21,21 +21,37 @@ interface Booking {
 export default function ClientBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
   const tier = useDeviceTier();
 
-  useEffect(() => {
-    async function fetchBookings() {
-      try {
-        const { data } = await api.get("/bookings");
-        setBookings(data.bookings || []);
-      } catch (err) {
-        console.error("Failed to fetch bookings:", err);
-      } finally {
-        setLoading(false);
-      }
+  async function fetchBookings() {
+    try {
+      const { data } = await api.get("/bookings");
+      setBookings(data.bookings || []);
+    } catch (err) {
+      console.error("Failed to fetch bookings:", err);
+    } finally {
+      setLoading(false);
     }
+  }
+
+  useEffect(() => {
     fetchBookings();
   }, []);
+
+  const handleCancel = async (id: string) => {
+    if (!confirm("Are you sure you want to cancel this booking?")) return;
+    setActionLoading(id);
+    try {
+      await api.patch(`/bookings/${id}/cancel`);
+      await fetchBookings();
+    } catch (err) {
+      console.error("Failed to cancel booking:", err);
+      alert("Failed to cancel booking. Please try again.");
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   const ItemWrapper = tier === "low" ? "div" : motion.div;
   const animProps = tier === "low" ? {} : {
@@ -100,6 +116,18 @@ export default function ClientBookingsPage() {
                 <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800 text-sm">
                   <p className="text-zinc-500 dark:text-zinc-500 text-xs mb-1">Notes</p>
                   <p className="text-zinc-700 dark:text-zinc-300">{booking.notes}</p>
+                </div>
+              )}
+
+              {(booking.status === "pending" || booking.status === "confirmed") && (
+                <div className="mt-4 pt-4 border-t border-zinc-100 dark:border-zinc-800 flex justify-end">
+                  <button
+                    onClick={() => handleCancel(booking.id)}
+                    disabled={!!actionLoading}
+                    className="text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 disabled:opacity-50 transition-colors"
+                  >
+                    {actionLoading === booking.id ? "Cancelling..." : "Cancel Booking"}
+                  </button>
                 </div>
               )}
             </ItemWrapper>
