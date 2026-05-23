@@ -49,6 +49,7 @@ src/
 - [x] Solved page refresh session logout by implementing LocalStorage-based fallback for refresh token rotating sliding sessions across cross-origin deployments.
 - [x] Debugged and refined Maid Dashboard and pages (fixed dynamic Tailwind color class compilation bugs, integrated real-time upcoming bookings feed, and resolved fixed layout sidebar overlaps on desktop viewports).
 - [x] Debugged and refined Client/User Dashboard and pages (implemented client-side Cancel Booking action handler on active bookings list).
+- [x] Refined Landing Page with non-technical friendly copy and created/linked clean Privacy, Terms, Refund, and Cancellation policy pages.
 
 
 ## User Roles
