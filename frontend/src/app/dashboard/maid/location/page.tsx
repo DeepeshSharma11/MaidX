@@ -94,7 +94,7 @@ export default function MaidLocationPage() {
         )}
 
         {/* Save button — fixed bottom on mobile */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 z-10">
+        <div className="fixed bottom-0 left-0 md:left-64 right-0 p-4 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 z-10">
           <button
             onClick={handleSave}
             disabled={loading || !location}
