@@ -5,6 +5,8 @@ import { LogOut, Home, User, Calendar, Settings, HelpCircle } from "lucide-react
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
+
 
 interface NavItem {
   label: string;
@@ -73,23 +75,34 @@ export default function DashboardSidebar() {
       {/* Nav items */}
       <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
         {items.map((item) => {
-          const active = pathname === item.href;
+          const isHome = item.href === "/dashboard/client" || item.href === "/dashboard/maid" || item.href === "/dashboard/admin";
+          const active = isHome ? pathname === item.href : (pathname === item.href || pathname.startsWith(item.href + "/"));
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              className={`group flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative ${
                 active
-                  ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400"
+                  ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-semibold"
                   : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-white"
               }`}
             >
-              <item.icon className="w-4 h-4" />
-              {item.label}
+              <div className="flex items-center gap-3">
+                <item.icon className={`w-4 h-4 transition-transform duration-200 ${active ? "stroke-[2.5px]" : "group-hover:scale-115 group-hover:text-indigo-500"}`} />
+                <span>{item.label}</span>
+              </div>
+              {active && (
+                <motion.div
+                  layoutId="active-indicator-bar"
+                  className="absolute left-0 top-1/4 bottom-1/4 w-1.5 bg-indigo-600 dark:bg-indigo-400 rounded-r-full"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
             </Link>
           );
         })}
       </nav>
+
 
       {/* Logout */}
       <div className="p-3 border-t border-zinc-100 dark:border-zinc-800">

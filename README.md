@@ -7,11 +7,13 @@ MaidX is an online service platform that connects domestic workers (maids) with 
 - **Backend API**: FastAPI (Python), PyJWT, bcrypt
 - **Database**: PostgreSQL via Supabase (Using standard SQL, no managed Auth)
 - **State & Performance**: React Context, `useDeviceTier` custom hook for adaptive frame-rate UI rendering on low-end hardware.
+- **Production URL**: `https://maidx.focitech.in`
+
 
 ## Key Features
 - **Custom JWT Authentication**: Role-based access control with robust security and OTP verification.
 - **Proximity-Based Search**: Haversine distance calculations linking PostgreSQL geolocation columns to Leaflet map UI.
-- **Mobile-First App Layout**: Responsive persistent bottom navigation for clients, maids, and admins.
+- **Mobile-First App Layout**: Responsive persistent bottom navigation with touch-safe Framer Motion spring sliding active indicators for clients, maids, and admins.
 - **Booking & Ticketing**: Complete production-ready booking creation, maid accept/decline scheduling, and support ticket system.
 
 ## Setup Instructions

@@ -7,6 +7,8 @@
 - **Auth**: Custom JWT Auth (bcrypt + HttpOnly Refresh Tokens) — transitioned from managed Supabase Auth
 - **State**: React Context (AuthContext) — no Zustand
 - **Performance**: `useDeviceTier` hook for adaptive, device-aware animations to ensure zero-lag on low-end devices.
+- **Domains**: `https://maidx.focitech.in`, `https://maidx-9jk3.onrender.com`, `https://maid-x.vercel.app`
+
 
 ## Overview
 MaidX connects domestic workers with clients. Time-slot based booking, verified profiles, proximity-based location search (Haversine formula), and a robust admin dashboard.
@@ -43,7 +45,7 @@ src/
 - [x] Booking System & Dashboards (API & UI).
 - [x] Implement actual booking creation flow from client search.
 - [x] Implement Accept/Decline action handlers for Maid.
-- [x] Hardened Custom JWT authentication and authorization at production level (DB-level active check, secure reset tokens, Axios refresh serialization, dynamic SMTP SSL/STARTTLS, and safe redirection logic).
+- [x] Hardened Custom JWT authentication and authorization at production level (DB-level active check, secure reset tokens, Axios refresh serialization, dynamic SMTP SSL/STARTTLS, safe redirection logic, and premium touch-safe/framer-motion navigation effects).
 
 
 ## User Roles
