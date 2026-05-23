@@ -11,7 +11,7 @@ MaidX is an online service platform that connects domestic workers (maids) with 
 
 
 ## Key Features
-- **Custom JWT Authentication**: Role-based access control with robust security and OTP verification.
+- **Custom JWT Authentication**: Role-based access control with robust security, OTP verification, and LocalStorage-based sliding session fallback to prevent cross-origin cookie-blocking logouts.
 - **Proximity-Based Search**: Robust Haversine distance calculations linking PostgreSQL geolocation columns to Leaflet map UI (hardened against serialization type mismatches).
 - **Mobile-First App Layout**: Responsive persistent bottom navigation with touch-safe Framer Motion spring sliding active indicators for clients, maids, and admins.
 - **Booking & Ticketing**: Complete production-ready booking creation, maid accept/decline scheduling, and support ticket system.

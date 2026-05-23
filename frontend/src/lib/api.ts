@@ -57,17 +57,24 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        // Attempt to refresh the token using the httpOnly cookie
+        const refresh_token = typeof window !== 'undefined' ? localStorage.getItem("refresh_token") : null;
+        // Attempt to refresh the token using the httpOnly cookie fallback
         const { data } = await axios.post(
           `${api.defaults.baseURL}/auth/refresh`,
-          {},
+          { refresh_token },
           { withCredentials: true }
         );
         setAccessToken(data.access_token);
+        if (data.refresh_token && typeof window !== 'undefined') {
+          localStorage.setItem("refresh_token", data.refresh_token);
+        }
         originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
         processQueue(null, data.access_token);
         return api(originalRequest);
       } catch (refreshError) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem("refresh_token");
+        }
         processQueue(refreshError, null);
         setAccessToken(null);
         // Dispatch custom event to trigger logout in AuthContext

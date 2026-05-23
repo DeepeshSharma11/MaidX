@@ -28,15 +28,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // On mount, try to refresh token via httpOnly cookie to restore session
+  // On mount, try to refresh token via httpOnly cookie or localstorage fallback to restore session
   useEffect(() => {
     const restoreSession = async () => {
       try {
-        const { data } = await api.post("/auth/refresh");
+        const refresh_token = typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null;
+        const { data } = await api.post("/auth/refresh", { refresh_token });
         setAccessToken(data.access_token);
+        if (data.refresh_token && typeof window !== "undefined") {
+          localStorage.setItem("refresh_token", data.refresh_token);
+        }
         setUser(data.user);
       } catch {
         // If refresh fails, user is not logged in.
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("refresh_token");
+        }
         setUser(null);
       } finally {
         setLoading(false);
@@ -62,6 +69,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     setAccessToken(data.access_token);
+    if (data.refresh_token && typeof window !== "undefined") {
+      localStorage.setItem("refresh_token", data.refresh_token);
+    }
     setUser(data.user);
 
     const routes: Record<string, string> = {
@@ -92,8 +102,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await api.post("/auth/logout");
+      const refresh_token = typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null;
+      await api.post("/auth/logout", { refresh_token });
     } finally {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("refresh_token");
+      }
       setUser(null);
       setAccessToken(null);
       router.push("/login");

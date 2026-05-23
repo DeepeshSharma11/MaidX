@@ -46,6 +46,7 @@ src/
 - [x] Implement actual booking creation flow from client search.
 - [x] Implement Accept/Decline action handlers for Maid.
 - [x] Hardened Custom JWT authentication and authorization at production level (DB-level active check, secure reset tokens, Axios refresh serialization, dynamic SMTP SSL/STARTTLS, safe redirection logic, and premium touch-safe/framer-motion navigation effects).
+- [x] Solved page refresh session logout by implementing LocalStorage-based fallback for refresh token rotating sliding sessions across cross-origin deployments.
 
 
 ## User Roles
@@ -53,4 +54,4 @@ src/
 2. **Maid**: Profile setup (skills, hourly rate, radius), manage bookings.
 3. **Client**: Search maids (proximity), book services, manage profile, submit tickets.
 
-> **CRITICAL RULE**: Always read this `Memory.md` before making any project changes.
+> **CRITICAL RULE**: Read Memory.md before making any changes. Always read this `Memory.md` before making any project changes.

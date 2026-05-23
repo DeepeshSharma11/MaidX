@@ -8,7 +8,7 @@ import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Request, Response, HTTPException, status
+from fastapi import APIRouter, Request, Response, HTTPException, status, Body
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, EmailStr
 
@@ -26,6 +26,9 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 # ── Schemas ───────────────────────────────────────────────
+
+class RefreshRequest(BaseModel):
+    refresh_token: str | None = None
 
 class SignupRequest(BaseModel):
     email: EmailStr
@@ -81,6 +84,7 @@ def _issue_session(db, user_id: str, role: str, full_name: str, email: str, resp
 
     return {
         "access_token": access_token,
+        "refresh_token": refresh_token,
         "token_type": "bearer",
         "user": {"id": str(user_id), "email": email, "role": role, "full_name": full_name},
     }
@@ -184,8 +188,13 @@ async def login(body: LoginRequest, request: Request, response: Response):
 # ── Refresh Token ─────────────────────────────────────────
 
 @router.post("/refresh")
-async def refresh_token(request: Request, response: Response):
-    token = request.cookies.get("refresh_token")
+async def refresh_token(request: Request, response: Response, body: RefreshRequest = Body(None)):
+    token = None
+    if body and body.refresh_token:
+        token = body.refresh_token
+    if not token:
+        token = request.cookies.get("refresh_token")
+
     if not token:
         raise HTTPException(status_code=401, detail="No refresh token.")
 
@@ -223,6 +232,7 @@ async def refresh_token(request: Request, response: Response):
     access_token = create_access_token(data={"sub": str(user["id"]), "role": profile["role"]})
     return {
         "access_token": access_token,
+        "refresh_token": new_refresh,
         "token_type": "bearer",
         "user": {"id": str(user["id"]), "email": user["email"], "role": profile["role"], "full_name": profile["full_name"]},
     }
@@ -231,8 +241,13 @@ async def refresh_token(request: Request, response: Response):
 # ── Logout ────────────────────────────────────────────────
 
 @router.post("/logout")
-async def logout(request: Request, response: Response):
-    token = request.cookies.get("refresh_token")
+async def logout(request: Request, response: Response, body: RefreshRequest = Body(None)):
+    token = None
+    if body and body.refresh_token:
+        token = body.refresh_token
+    if not token:
+        token = request.cookies.get("refresh_token")
+
     if token:
         db = get_supabase()
         db.table("sessions").delete().eq("refresh_token", token).execute()
