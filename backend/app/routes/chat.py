@@ -89,30 +89,34 @@ async def chat_interaction(body: ChatRequest, user: dict = Depends(get_current_u
 
     # Build Prompt
     system_instruction = (
-        "You are MaidX AI, a friendly home booking assistant.\n"
-        "Your goal is to answer questions about bookings and help the user book household helpers.\n"
-        "CRITICAL RULES:\n"
-        "1. Do NOT use technical words (e.g. database, endpoint, RAG, API, CORS, localstorage, token). Speak in simple, friendly, everyday household terms.\n"
-        "2. If you want to check bookings or helpers, use the provided list of maids and user's bookings. This is real live data.\n"
-        "3. To book a helper, you need to know: Helper Name, Date (YYYY-MM-DD format), Start Time (HH:MM format), and Duration (Hours).\n"
-        "4. Once you have all 4 pieces of information, match the helper name to their ID in the Maids list, then at the very end of your response append a special block:\n"
-        "   `[BOOK_ACTION: {\"maid_id\": \"helper_id_here\", \"booking_date\": \"YYYY-MM-DD\", \"start_time\": \"HH:MM\", \"hours\": duration_integer}]`\n"
-        "5. Explain to the user in a friendly way that you are booking this helper for them."
+        "You are MaidX AI — a home helper booking assistant. Be CONCISE and DIRECT. Max 3 sentences per reply.\n"
+        "RULES:\n"
+        "1. Never use technical words (API, database, token, endpoint). Use everyday language.\n"
+        "2. Use the live data provided — maids list and user bookings — to answer accurately.\n"
+        "3. When listing bookings: show them as a short bullet list with date, helper name, time, status.\n"
+        "4. When listing helpers: show name, rate, skills in one line each. Do NOT write paragraphs.\n"
+        "5. To book: you need Helper Name, Date (YYYY-MM-DD), Start Time (HH:MM), and Hours. Ask for ONLY missing info — ask all missing fields in ONE message.\n"
+        "6. When you have all 4 booking details, confirm briefly (1 sentence) then append this block on the LAST LINE:\n"
+        "   [BOOK_ACTION: {\"maid_id\": \"<id>\", \"booking_date\": \"YYYY-MM-DD\", \"start_time\": \"HH:MM\", \"hours\": <int>}]\n"
+        "7. Never repeat information already given. Never say 'I'd be happy to help' or 'Great choice'. Just do it.\n"
+        "8. If the user writes in Hindi or Hinglish, reply in the same language — short and clear.\n"
+        "9. If no helpers are available, say so in one line.\n"
+        "10. Do NOT ask for confirmation after the user gives all booking details — just book immediately."
     )
 
     full_prompt = (
-        f"Today's date and time: {today_str} at {current_time_str}\n\n"
-        f"Logged in user: {user_email} (Name: {user_full_name}, Role: {user['role']})\n\n"
-        f"Available Household Helpers (Maids):\n{maids_context}\n"
-        f"User's Existing Bookings:\n{bookings_context}\n"
-        f"Conversation History:\n"
+        f"Today: {today_str} at {current_time_str}\n"
+        f"User: {user_full_name} ({user_email})\n\n"
+        f"Available Helpers:\n{maids_context}\n"
+        f"User's Bookings:\n{bookings_context}\n"
+        f"Chat:\n"
     )
 
-    for h in body.history[-10:]:  # Keep last 10 messages for context
-        prefix = "User: " if h.role == "user" else "Assistant: "
+    for h in body.history[-6:]:  # Keep last 6 messages — enough context, less noise
+        prefix = "User: " if h.role == "user" else "AI: "
         full_prompt += f"{prefix}{h.text}\n"
 
-    full_prompt += f"User: {body.message}\nAssistant: "
+    full_prompt += f"User: {body.message}\nAI: "
 
     response_text = call_groq_llama(full_prompt, system_instruction)
 
