@@ -4,8 +4,8 @@ import dynamic from "next/dynamic";
 import { useState, useEffect, useCallback } from "react";
 import {
   MapPin, Star, Filter, Loader2, Map, List, X,
-  CheckCircle2, Phone, Clock, Briefcase, Award,
-  ChevronRight, Calendar
+  CheckCircle2, Clock, Briefcase, Award,
+  ChevronRight, Calendar, MessageSquare
 } from "lucide-react";
 import api from "@/lib/api";
 import { useDeviceTier } from "@/hooks/useDeviceTier";
@@ -26,11 +26,19 @@ interface Maid {
   rating: number;
   reviews: number;
   distance: string;
-  hourlyRate: number;
+  hourlyRate: number | null;
   skills: string[];
   avatar: string;
   isVerified: boolean;
   bio?: string;
+}
+
+interface MaidReview {
+  id: string;
+  rating: number;
+  comment: string;
+  client_name: string;
+  created_at: string;
 }
 
 const SKILL_FILTERS = ["All", "Cleaning", "Cooking", "Laundry", "Baby Care", "Elderly Care"];
@@ -50,6 +58,8 @@ export default function FindMaidsPage() {
 
   // Detail drawer state
   const [detailMaid, setDetailMaid] = useState<Maid | null>(null);
+  const [detailReviews, setDetailReviews] = useState<MaidReview[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
 
   // Booking modal state
   const [selectedMaid, setSelectedMaid] = useState<Maid | null>(null);
@@ -86,6 +96,16 @@ export default function FindMaidsPage() {
     setSelectedMaid(maid);
     setBookingError("");
     setBookingSuccess(false);
+  };
+
+  const openDetail = (maid: Maid) => {
+    setDetailMaid(maid);
+    setDetailReviews([]);
+    setReviewsLoading(true);
+    api.get(`/reviews/maid/${maid.id}`)
+      .then(r => setDetailReviews(r.data.reviews || []))
+      .catch(() => {})
+      .finally(() => setReviewsLoading(false));
   };
 
   const handleCreateBooking = async (e: React.FormEvent) => {
@@ -249,7 +269,7 @@ export default function FindMaidsPage() {
               key={maid.id}
               {...animProps}
               transition={tier !== "low" ? { delay: i * 0.04 } : undefined}
-              onClick={() => setDetailMaid(maid)}
+              onClick={() => openDetail(maid)}
               className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 active:scale-[0.985] transition-transform cursor-pointer hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md"
             >
               <div className="flex items-start gap-3">
@@ -450,6 +470,40 @@ export default function FindMaidsPage() {
                         <p className="text-xs text-emerald-600 dark:text-emerald-400">Background Verified</p>
                         <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Identity & background check passed</p>
                       </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Reviews */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <MessageSquare className="w-4 h-4 text-amber-500" />
+                    <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200">Reviews ({detailMaid.reviews})</h3>
+                  </div>
+                  {reviewsLoading ? (
+                    <div className="flex justify-center py-4">
+                      <Loader2 className="w-5 h-5 animate-spin text-zinc-400" />
+                    </div>
+                  ) : detailReviews.length === 0 ? (
+                    <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-3 text-center">
+                      <p className="text-xs text-zinc-400">No reviews yet. Be the first!</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {detailReviews.slice(0, 5).map(rv => (
+                        <div key={rv.id} className="bg-zinc-50 dark:bg-zinc-800/50 rounded-xl p-3">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">{rv.client_name}</span>
+                            <div className="flex items-center gap-0.5">
+                              {[1,2,3,4,5].map(s => (
+                                <Star key={s} className={`w-3 h-3 ${s <= rv.rating ? 'text-amber-400 fill-amber-400' : 'text-zinc-300 dark:text-zinc-600'}`} />
+                              ))}
+                            </div>
+                          </div>
+                          {rv.comment && <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">{rv.comment}</p>}
+                          <p className="text-[10px] text-zinc-400 mt-1">{new Date(rv.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
