@@ -37,9 +37,10 @@ async def search_maids(
         # Distance calculation
         dist = None
         if lat is not None and lng is not None and p.get("lat") and p.get("lng"):
-            dist = haversine(lat, lng, p["lat"], p["lng"])
+            dist = haversine(lat, lng, float(p["lat"]), float(p["lng"]))
             if dist > (p.get("service_radius_km") or radius):
                 continue # Outside service area
+
         
         maids.append({
             "id": p["id"],

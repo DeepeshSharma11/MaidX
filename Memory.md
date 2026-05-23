@@ -40,7 +40,7 @@ src/
 - [x] Profile Management & Settings Pages for Admin, Client, Maid.
 - [x] Mobile-first UI Architecture (MobileNav + DashboardSidebar).
 - [x] Adaptive Animations (Framer Motion gated by device tiering).
-- [x] Location-based Maid Search (Haversine distance calculation in FastAPI + Leaflet JS UI).
+- [x] Location-based Maid Search (Haversine distance calculation in FastAPI + Leaflet JS UI - hardened against float casting bugs).
 - [x] Support Ticketing System (API & UI).
 - [x] Booking System & Dashboards (API & UI).
 - [x] Implement actual booking creation flow from client search.
