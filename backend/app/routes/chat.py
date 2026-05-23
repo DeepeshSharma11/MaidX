@@ -95,13 +95,16 @@ async def chat_interaction(body: ChatRequest, user: dict = Depends(get_current_u
         "2. Use the live data provided — maids list and user bookings — to answer accurately.\n"
         "3. When listing bookings: show them as a short bullet list with date, helper name, time, status.\n"
         "4. When listing helpers: show name, rate, skills in one line each. Do NOT write paragraphs.\n"
-        "5. To book: you need Helper Name, Date (YYYY-MM-DD), Start Time (HH:MM), and Hours. Ask for ONLY missing info — ask all missing fields in ONE message.\n"
-        "6. When you have all 4 booking details, confirm briefly (1 sentence) then append this block on the LAST LINE:\n"
+        "5. To BOOK: you need Helper Name, Date (YYYY-MM-DD), Start Time (HH:MM), and Hours. Ask for ONLY missing info in ONE message.\n"
+        "6. When you have all 4 booking details, confirm briefly (1 sentence) then append on LAST LINE:\n"
         "   [BOOK_ACTION: {\"maid_id\": \"<id>\", \"booking_date\": \"YYYY-MM-DD\", \"start_time\": \"HH:MM\", \"hours\": <int>}]\n"
-        "7. Never repeat information already given. Never say 'I'd be happy to help' or 'Great choice'. Just do it.\n"
-        "8. If the user writes in Hindi or Hinglish, reply in the same language — short and clear.\n"
-        "9. If no helpers are available, say so in one line.\n"
-        "10. Do NOT ask for confirmation after the user gives all booking details — just book immediately."
+        "7. To CANCEL a booking: identify which booking the user means from the bookings list, then append on LAST LINE:\n"
+        "   [CANCEL_ACTION: {\"booking_id\": \"<booking_uuid>\"}]\n"
+        "   Only cancel bookings with status 'pending' or 'confirmed'. If already cancelled/completed, say so.\n"
+        "8. CRITICAL: If the user says 'cancel', 'cancel karo', 'cancel kardo', 'hatao', 'band karo' — they want to CANCEL an existing booking. NEVER book a new one.\n"
+        "9. Never repeat information already given. Never say 'I'd be happy to help'. Just do it.\n"
+        "10. If the user writes in Hindi or Hinglish, reply in the same language — short and clear.\n"
+        "11. Do NOT ask for confirmation — act immediately once intent is clear."
     )
 
     full_prompt = (
@@ -112,7 +115,7 @@ async def chat_interaction(body: ChatRequest, user: dict = Depends(get_current_u
         f"Chat:\n"
     )
 
-    for h in body.history[-6:]:  # Keep last 6 messages — enough context, less noise
+    for h in body.history[-6:]:
         prefix = "User: " if h.role == "user" else "AI: "
         full_prompt += f"{prefix}{h.text}\n"
 
@@ -120,31 +123,28 @@ async def chat_interaction(body: ChatRequest, user: dict = Depends(get_current_u
 
     response_text = call_groq_llama(full_prompt, system_instruction)
 
-    # Check for Booking Action
     booking_created = False
+    booking_cancelled = False
     action_error = ""
+
+    # ── Handle BOOK_ACTION ──────────────────────────────────────────
     if "[BOOK_ACTION:" in response_text:
         try:
-            # Extract JSON block between [BOOK_ACTION: and ]
             start_idx = response_text.find("[BOOK_ACTION:") + len("[BOOK_ACTION:")
             end_idx = response_text.find("]", start_idx)
-            action_json_str = response_text[start_idx:end_idx].strip()
-            action_data = json.loads(action_json_str)
+            action_data = json.loads(response_text[start_idx:end_idx].strip())
 
             maid_id = action_data["maid_id"]
             b_date = action_data["booking_date"]
             b_time = action_data["start_time"]
             b_hours = int(action_data["hours"])
 
-            # Verify maid exists and get hourly rate
             selected_maid = next((m for m in maids if m["id"] == maid_id), None)
             if not selected_maid:
-                raise ValueError("Helper not found in the list.")
+                raise ValueError("Helper not found.")
 
-            # Create booking in Supabase
             hourly_rate = selected_maid.get("hourly_rate")
-            hourly_rate_val = float(hourly_rate) if hourly_rate is not None else 0.0
-            total_price = hourly_rate_val * b_hours
+            total_price = float(hourly_rate) * b_hours if hourly_rate is not None else 0.0
             end_time = parse_end_time(b_time, b_hours)
 
             db.table("bookings").insert({
@@ -160,16 +160,46 @@ async def chat_interaction(body: ChatRequest, user: dict = Depends(get_current_u
             }).execute()
 
             booking_created = True
-            # Clean response text from action block to show users a clean response
             response_text = response_text[:response_text.find("[BOOK_ACTION:")].strip()
             response_text += "\n\n✨ Booking request has been created successfully!"
         except Exception as e:
             action_error = str(e)
             logger.error(f"Failed to execute AI booking: {e}")
             response_text = response_text[:response_text.find("[BOOK_ACTION:")].strip()
-            response_text += f"\n\n⚠️ Sorry, I tried to book but ran into a scheduling detail issue: {action_error}"
+            response_text += f"\n\n⚠️ Booking failed: {action_error}"
+
+    # ── Handle CANCEL_ACTION ────────────────────────────────────────
+    elif "[CANCEL_ACTION:" in response_text:
+        try:
+            start_idx = response_text.find("[CANCEL_ACTION:") + len("[CANCEL_ACTION:")
+            end_idx = response_text.find("]", start_idx)
+            action_data = json.loads(response_text[start_idx:end_idx].strip())
+
+            booking_id = action_data["booking_id"]
+
+            # Verify booking belongs to this user and is cancellable
+            booking_res = db.table("bookings").select("id, client_id, status").eq("id", booking_id).execute()
+            if not booking_res.data:
+                raise ValueError("Booking not found.")
+            booking = booking_res.data[0]
+            if booking["client_id"] != user["id"]:
+                raise ValueError("Not your booking.")
+            if booking["status"] in ("cancelled", "completed"):
+                raise ValueError(f"Booking is already {booking['status']}.")
+
+            db.table("bookings").update({"status": "cancelled"}).eq("id", booking_id).execute()
+
+            booking_cancelled = True
+            response_text = response_text[:response_text.find("[CANCEL_ACTION:")].strip()
+            response_text += "\n\n✅ Booking has been cancelled successfully."
+        except Exception as e:
+            action_error = str(e)
+            logger.error(f"Failed to cancel booking via AI: {e}")
+            response_text = response_text[:response_text.find("[CANCEL_ACTION:")].strip()
+            response_text += f"\n\n⚠️ Could not cancel: {action_error}"
 
     return {
         "response": response_text,
-        "booking_created": booking_created
+        "booking_created": booking_created,
+        "booking_cancelled": booking_cancelled,
     }

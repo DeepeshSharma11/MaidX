@@ -52,7 +52,7 @@ export default function ChatBotButton() {
         history: historyPayload,
       });
       setMessages((prev) => [...prev, { role: "model", text: data.response }]);
-      if (data.booking_created) {
+      if (data.booking_created || data.booking_cancelled) {
         window.dispatchEvent(new Event("bookings:updated"));
       }
     } catch (err) {
