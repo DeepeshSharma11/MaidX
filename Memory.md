@@ -1,3 +1,4 @@
+> **IMPORTANT**: Please read Memory.md before making any changes.
 # Project Context: MaidX (Domestic Help Hiring Platform)
 
 ## Core Stack
@@ -56,6 +57,8 @@ src/
 - [x] Added maid detail bottom-sheet drawer in client find-maids page (bio, skills, rating, rate, distance, verified badge) with Book Now CTA, and extended /maids API to return bio and city fields.
 - [x] Implemented full reviews/ratings system: POST /reviews (post-completion), GET /reviews/maid/{id}, GET /reviews/check/{booking_id}, auto-recalculates maid avg rating+count. Star rating modal in bookings page. Reviews shown in maid detail drawer.
 - [x] Implemented recommendation system: GET /reviews/recommended with weighted score (70% rating + 30% review volume). Top Helpers section on client home dashboard.
+- [x] Fixed mobile layout map overlapping page header issues by applying relative z-10 index layout scope and isolated z-0 stacking context to LocationPicker map.
+
 
 
 ## User Roles

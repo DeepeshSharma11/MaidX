@@ -1,3 +1,4 @@
+> **IMPORTANT**: Please read [Memory.md](file:///c:/Users/deepe/Desktop/MaidX/Memory.md) before making any changes.
 # MaidX - Domestic Help Hiring Platform
 
 MaidX is an online service platform that connects domestic workers (maids) with clients. It enables maids to create profiles and allows clients to hire them based on specific requirements, time slots, and physical proximity using location services.

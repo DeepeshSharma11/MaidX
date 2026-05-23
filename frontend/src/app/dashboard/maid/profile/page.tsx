@@ -249,14 +249,12 @@ export default function MaidProfilePage() {
         <p className="text-xs text-zinc-400 text-center mb-3">— or drag the map pin to set manually —</p>
 
         {/* Map */}
-        <div className="rounded-2xl overflow-hidden border border-zinc-200 dark:border-zinc-700">
-          <LocationPicker
-            value={location.lat && location.lng ? { lat: location.lat, lng: location.lng } : undefined}
-            onChange={handleMapLocation}
-            height="200px"
-            zoom={14}
-          />
-        </div>
+        <LocationPicker
+          value={location.lat && location.lng ? { lat: location.lat, lng: location.lng } : undefined}
+          onChange={handleMapLocation}
+          height="200px"
+          zoom={14}
+        />
 
         {/* Current Coords display */}
         {location.lat && location.lng && (

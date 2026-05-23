@@ -109,7 +109,7 @@ export default function LocationPicker({
   };
 
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm" style={{ maxWidth: "100%" }}>
+    <div className="relative z-0 w-full overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm" style={{ maxWidth: "100%" }}>
       <div ref={containerRef} style={{ height, width: "100%", maxWidth: "100%", display: "block" }} />
 
       {/* Geolocate button */}

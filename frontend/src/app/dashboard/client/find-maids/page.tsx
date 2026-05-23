@@ -174,7 +174,7 @@ export default function FindMaidsPage() {
   return (
     <div className="flex flex-col h-full bg-zinc-50 dark:bg-zinc-950 overflow-x-hidden">
       {/* ── Page Header ── */}
-      <div className="px-4 pt-5 pb-3 bg-zinc-50 dark:bg-zinc-950">
+      <div className="relative z-10 px-4 pt-5 pb-3 bg-zinc-50 dark:bg-zinc-950 border-b border-zinc-200/60 dark:border-zinc-800/60 shadow-sm">
         <div className="flex items-center justify-between mb-1">
           <div>
             <h1 className="text-xl font-bold text-zinc-900 dark:text-white">Find Helpers</h1>
@@ -198,12 +198,10 @@ export default function FindMaidsPage() {
       </div>
 
       {/* ── Scrollable Content ── */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 space-y-4 pb-24 md:pb-6">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 space-y-4 pb-24 md:pb-6 relative z-0">
         {/* Map */}
         {showMap && (
-          <div className="w-full overflow-hidden rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm" style={{ maxWidth: "100%" }}>
-            <LocationPicker value={location} onChange={setLocation} height="220px" zoom={13} />
-          </div>
+          <LocationPicker value={location} onChange={setLocation} height="220px" zoom={13} />
         )}
 
         {/* Radius Slider */}
