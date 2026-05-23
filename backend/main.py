@@ -9,6 +9,7 @@ from app.routes.maids import router as maids_router
 from app.routes.profile import router as profile_router
 from app.routes.bookings import router as bookings_router
 from app.routes.tickets import router as tickets_router
+from app.routes.chat import router as chat_router
 
 REQUEST_TIMEOUT = 30  # seconds
 
@@ -46,6 +47,7 @@ app.include_router(maids_router)
 app.include_router(profile_router)
 app.include_router(bookings_router)
 app.include_router(tickets_router)
+app.include_router(chat_router)
 
 
 @app.get("/")

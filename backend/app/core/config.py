@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     SMTP_PASS: str = ""
     SMTP_FROM_EMAIL: str = ""
 
+    GEMINI_API_KEY: str = ""
+    GROQ_API_KEY: str = ""
+
 
     JWT_SECRET_KEY: str = "supersecretkey_change_in_production"
     JWT_ALGORITHM: str = "HS256"

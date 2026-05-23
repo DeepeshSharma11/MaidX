@@ -37,6 +37,9 @@ export default function ClientBookingsPage() {
 
   useEffect(() => {
     fetchBookings();
+    const handleUpdate = () => fetchBookings();
+    window.addEventListener("bookings:updated", handleUpdate);
+    return () => window.removeEventListener("bookings:updated", handleUpdate);
   }, []);
 
   const handleCancel = async (id: string) => {
