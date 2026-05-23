@@ -9,10 +9,16 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     pwd_bytes = plain_password.encode('utf-8')
     if len(pwd_bytes) > 72:
         pwd_bytes = pwd_bytes[:72]
-    return bcrypt.checkpw(
-        pwd_bytes, 
-        hashed_password.encode('utf-8')
-    )
+    try:
+        return bcrypt.checkpw(
+            pwd_bytes, 
+            hashed_password.encode('utf-8')
+        )
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Password verification error: {e}")
+        return False
+
 
 def get_password_hash(password: str) -> str:
     # bcrypt requires bytes, returns bytes. We store as string.

@@ -262,10 +262,12 @@ async def verify_reset_otp(body: VerifyOtpRequest, request: Request):
     check_rate_limit(request, "forgot_password")
     if not verify_otp(body.email, body.otp, "password_reset"):
         raise HTTPException(status_code=400, detail="Invalid or expired OTP.")
-    # Issue a short-lived reset token stored as next OTP
-    reset_token = generate_otp()
+    # Issue a short-lived cryptographically secure reset token stored as next OTP
+    import secrets
+    reset_token = secrets.token_hex(32)
     store_otp(body.email, reset_token, "password_reset_confirmed")
     return {"message": "Code verified. You can now set a new password.", "reset_token": reset_token}
+
 
 
 @router.post("/reset-password")

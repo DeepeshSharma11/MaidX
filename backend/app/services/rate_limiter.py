@@ -21,7 +21,7 @@ WINDOW_MINUTES = 30
 def _get_identifiers(request: Request) -> list[str]:
     """Return IP + optional device fingerprint from headers."""
     forwarded = request.headers.get("x-forwarded-for")
-    ip = forwarded.split(",")[0].strip() if forwarded else request.client.host
+    ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "127.0.0.1")
     device_fp = request.headers.get("x-device-fingerprint", "")
     identifiers = [f"ip:{ip}"]
     if device_fp:
@@ -35,6 +35,14 @@ def check_rate_limit(request: Request, action: str) -> None:
     """
     max_attempts = LIMITS.get(action, 5)
     window_start = datetime.now(timezone.utc) - timedelta(minutes=WINDOW_MINUTES)
+
+    # Lazy cleanup: delete expired rate limit logs for this action to prevent DB bloat
+    try:
+        get_supabase().table("rate_limits").delete().eq("action", action).lt("window_start", window_start.isoformat()).execute()
+    except Exception as cleanup_err:
+        import logging
+        logging.getLogger(__name__).warning(f"Failed to lazy clean rate limits: {cleanup_err}")
+
 
     for identifier in _get_identifiers(request):
         result = (

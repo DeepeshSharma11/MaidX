@@ -11,8 +11,8 @@ interface Booking {
   client_name: string;
   booking_date: string;
   start_time: string;
-  hours: number;
-  total_amount: number;
+  total_hours: number;
+  total_price: number;
   status: string;
   notes: string;
 }
@@ -110,8 +110,8 @@ export default function MaidBookingsPage() {
                     </span>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">₹{booking.total_amount}</p>
-                    <p className="text-xs text-zinc-400">{booking.hours}h</p>
+                    <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">₹{booking.total_price}</p>
+                    <p className="text-xs text-zinc-400">{booking.total_hours}h</p>
                   </div>
                 </div>
 
@@ -121,7 +121,7 @@ export default function MaidBookingsPage() {
                     {new Date(booking.booking_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                   </span>
                   <span className="flex items-center gap-2"><Clock className="w-4 h-4 shrink-0 text-emerald-400" />
-                    {booking.start_time} · {booking.hours} hrs
+                    {booking.start_time} · {booking.total_hours} hrs
                   </span>
                 </div>
 

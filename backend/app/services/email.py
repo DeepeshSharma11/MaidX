@@ -39,8 +39,8 @@ def _send_via_resend(to: str, subject: str, html: str) -> bool:
         return False
 
 
-def _send_via_smtp_ssl(to: str, subject: str, html: str) -> bool:
-    """Gmail SMTP over SSL port 465 with explicit timeout."""
+def _send_via_smtp(to: str, subject: str, html: str) -> bool:
+    """Dynamic SMTP sender supporting both SSL (port 465) and STARTTLS (e.g. port 587)."""
     try:
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
@@ -49,21 +49,28 @@ def _send_via_smtp_ssl(to: str, subject: str, html: str) -> bool:
         msg.attach(MIMEText(html, "html"))
 
         context = ssl.create_default_context()
-        with smtplib.SMTP_SSL(
-            settings.SMTP_HOST, 465,
-            context=context,
-            timeout=EMAIL_TIMEOUT       # <-- socket-level timeout
-        ) as server:
-            server.login(settings.SMTP_USER, settings.SMTP_PASS)
-            server.sendmail(settings.SMTP_FROM_EMAIL, to, msg.as_string())
 
-        logger.info(f"Email sent via SMTP SSL to {to}")
+        if settings.SMTP_PORT == 465:
+            with smtplib.SMTP_SSL(
+                settings.SMTP_HOST, settings.SMTP_PORT,
+                context=context,
+                timeout=EMAIL_TIMEOUT
+            ) as server:
+                server.login(settings.SMTP_USER, settings.SMTP_PASS)
+                server.sendmail(settings.SMTP_FROM_EMAIL, to, msg.as_string())
+        else:
+            with smtplib.SMTP(
+                settings.SMTP_HOST, settings.SMTP_PORT,
+                timeout=EMAIL_TIMEOUT
+            ) as server:
+                server.starttls(context=context)
+                server.login(settings.SMTP_USER, settings.SMTP_PASS)
+                server.sendmail(settings.SMTP_FROM_EMAIL, to, msg.as_string())
+
+        logger.info(f"Email sent via SMTP to {to}")
         return True
-    except TimeoutError:
-        logger.error(f"SMTP SSL timed out after {EMAIL_TIMEOUT}s for {to}")
-        return False
     except Exception as e:
-        logger.error(f"SMTP SSL failed: {e}")
+        logger.error(f"SMTP sending failed to {to}: {e}")
         return False
 
 
@@ -71,15 +78,16 @@ def _send_via_smtp_ssl(to: str, subject: str, html: str) -> bool:
 def send_email(to: str, subject: str, html: str) -> bool:
     if _send_via_resend(to, subject, html):
         return True
-    if _send_via_smtp_ssl(to, subject, html):
+    if _send_via_smtp(to, subject, html):
         return True
     # Last resort: log OTP so devs can still test
-    otp_match = re.search(r'\b\d{6}\b', html)
+    otp_match = re.search(r'\b[a-f0-9]{64}\b|\b\d{6}\b', html)
     if otp_match:
-        logger.warning(f"⚠️  ALL EMAIL METHODS FAILED — OTP for {to}: {otp_match.group()}")
+        logger.warning(f"⚠️  ALL EMAIL METHODS FAILED — Verification Code/Token for {to}: {otp_match.group()}")
     else:
         logger.warning(f"⚠️  ALL EMAIL METHODS FAILED — to: {to}, subject: {subject}")
     return False
+
 
 
 # ── Templates ──────────────────────────────────────────────

@@ -41,22 +41,39 @@ async def get_bookings(user: dict = Depends(get_current_user)):
 
     return {"bookings": bookings}
 
+def calculate_end_time(start_time_str: str, hours: int) -> str:
+    try:
+        parts = start_time_str.split(":")
+        h = int(parts[0])
+        m = int(parts[1]) if len(parts) > 1 else 0
+        total_minutes = h * 60 + m + hours * 60
+        end_h = (total_minutes // 60) % 24
+        end_m = total_minutes % 60
+        return f"{end_h:02d}:{end_m:02d}:00"
+    except Exception:
+        return "12:00:00"  # fallback safe default
+
 @router.post("/")
 async def create_booking(body: CreateBookingRequest, user: dict = Depends(get_current_user)):
     if user["role"] != "client":
         raise HTTPException(status_code=403, detail="Only clients can create bookings.")
     db = get_supabase()
+    
+    end_time = calculate_end_time(body.start_time, body.hours)
+    
     res = db.table("bookings").insert({
         "client_id":    user["id"],
         "maid_id":      body.maid_id,
         "status":       "pending",
         "booking_date": body.booking_date,
         "start_time":   body.start_time,
-        "hours":        body.hours,
-        "total_amount": body.total_amount,
+        "end_time":     end_time,
+        "total_hours":  body.hours,
+        "total_price":  body.total_amount,
         "notes":        body.notes,
     }).execute()
     return {"message": "Booking created successfully.", "booking": res.data[0]}
+
 
 @router.patch("/{booking_id}/confirm")
 async def confirm_booking(booking_id: str, user: dict = Depends(get_current_user)):

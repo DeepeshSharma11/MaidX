@@ -12,7 +12,7 @@ MaidX is an online service platform that connects domestic workers (maids) with 
 - **Custom JWT Authentication**: Role-based access control with robust security and OTP verification.
 - **Proximity-Based Search**: Haversine distance calculations linking PostgreSQL geolocation columns to Leaflet map UI.
 - **Mobile-First App Layout**: Responsive persistent bottom navigation for clients, maids, and admins.
-- **Booking & Ticketing**: Complete End-to-End scheduling and support ticket system.
+- **Booking & Ticketing**: Complete production-ready booking creation, maid accept/decline scheduling, and support ticket system.
 
 ## Setup Instructions
 
@@ -22,7 +22,7 @@ cd backend
 python -m venv venv
 source venv/bin/activate  # Or `.\venv\Scripts\activate` on Windows
 pip install -r requirements.txt
-# Set .env with DB_URL, JWT_SECRET, etc.
+# Set .env with DB_URL, JWT_SECRET_KEY (mandatory in production), etc.
 uvicorn main:app --reload
 ```
 

@@ -41,8 +41,10 @@ src/
 - [x] Location-based Maid Search (Haversine distance calculation in FastAPI + Leaflet JS UI).
 - [x] Support Ticketing System (API & UI).
 - [x] Booking System & Dashboards (API & UI).
-- [ ] Implement actual booking creation flow from client search.
-- [ ] Implement Accept/Decline action handlers for Maid.
+- [x] Implement actual booking creation flow from client search.
+- [x] Implement Accept/Decline action handlers for Maid.
+- [x] Hardened Custom JWT authentication and authorization at production level (DB-level active check, secure reset tokens, Axios refresh serialization, dynamic SMTP SSL/STARTTLS, and safe redirection logic).
+
 
 ## User Roles
 1. **Admin**: Manage users, monitor bookings, resolve tickets, view statistics.

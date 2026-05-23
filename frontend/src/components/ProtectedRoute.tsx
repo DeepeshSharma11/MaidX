@@ -18,9 +18,12 @@ export default function ProtectedRoute({ children, allowedRoles }: Props) {
     if (loading) return;
 
     if (!isAuthenticated) {
-      router.replace("/login");
+      const currentPath = typeof window !== "undefined" ? window.location.pathname + window.location.search : "";
+      const query = currentPath ? `?redirect=${encodeURIComponent(currentPath)}` : "";
+      router.replace(`/login${query}`);
       return;
     }
+
 
     if (user && !allowedRoles.includes(user.role)) {
       // Redirect to their own dashboard

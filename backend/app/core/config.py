@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     RESEND_FROM_EMAIL: str
 
     SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
     SMTP_USER: str = ""
     SMTP_PASS: str = ""
     SMTP_FROM_EMAIL: str = ""
@@ -28,4 +29,14 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    return Settings()
+    settings = Settings()
+    if settings.JWT_SECRET_KEY == "supersecretkey_change_in_production":
+        import logging
+        logging.basicConfig(level=logging.INFO)
+        logger = logging.getLogger(__name__)
+        logger.warning(
+            "⚠️ SECURITY WARNING: JWT_SECRET_KEY is using the default insecure value! "
+            "Set JWT_SECRET_KEY in your environment variables for production."
+        )
+    return settings
+

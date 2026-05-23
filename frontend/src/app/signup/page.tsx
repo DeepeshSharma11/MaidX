@@ -21,7 +21,18 @@ function SignupContent() {
 
   useEffect(() => {
     if (user && !authLoading) {
-      router.replace(`/dashboard/${user.role}`);
+      let target = `/dashboard/${user.role}`;
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get("redirect");
+        if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
+          const role = user.role;
+          if (redirect.startsWith(`/dashboard/${role}`) || !redirect.startsWith("/dashboard/")) {
+            target = redirect;
+          }
+        }
+      }
+      router.replace(target);
     }
   }, [user, authLoading, router]);
 
@@ -38,6 +49,15 @@ function SignupContent() {
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-zinc-950">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+      </div>
+    );
+  }
+
 
   // OTP state
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);

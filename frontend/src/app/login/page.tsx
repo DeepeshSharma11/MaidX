@@ -15,7 +15,18 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user && !authLoading) {
-      router.replace(`/dashboard/${user.role}`);
+      let target = `/dashboard/${user.role}`;
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get("redirect");
+        if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
+          const role = user.role;
+          if (redirect.startsWith(`/dashboard/${role}`) || !redirect.startsWith("/dashboard/")) {
+            target = redirect;
+          }
+        }
+      }
+      router.replace(target);
     }
   }, [user, authLoading, router]);
 
@@ -30,13 +41,6 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      const { data } = await api.post("/auth/login", { email, password });
-      if (data.requires_otp) {
-        // Unverified account — go to signup OTP screen with email prefilled
-        router.push(`/signup?email=${encodeURIComponent(email)}&step=otp`);
-        return;
-      }
-      // Normal login — let AuthContext set user state
       await login(email, password);
     } catch (err: any) {
       setError(err.response?.data?.detail ?? "Login failed. Please try again.");
@@ -44,6 +48,15 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-zinc-950">
+        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 flex items-center justify-center px-4">

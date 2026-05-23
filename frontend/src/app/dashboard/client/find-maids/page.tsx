@@ -2,10 +2,11 @@
 
 import dynamic from "next/dynamic";
 import { useState, useEffect, useCallback } from "react";
-import { MapPin, Star, Filter, Loader2, Map, List } from "lucide-react";
+import { MapPin, Star, Filter, Loader2, Map, List, X, CheckCircle2 } from "lucide-react";
 import api from "@/lib/api";
 import { useDeviceTier } from "@/hooks/useDeviceTier";
 import { motion } from "framer-motion";
+
 
 const LocationPicker = dynamic(() => import("@/components/LocationPicker"), {
   ssr: false,
@@ -42,6 +43,63 @@ export default function FindMaidsPage() {
   const [maids, setMaids] = useState<Maid[]>([]);
   const [loading, setLoading] = useState(false);
   const tier = useDeviceTier();
+
+  // Booking states
+  const [selectedMaid, setSelectedMaid] = useState<Maid | null>(null);
+  const [bookingDate, setBookingDate] = useState("");
+  const [bookingTime, setBookingTime] = useState("09:00");
+  const [bookingHours, setBookingHours] = useState(2);
+  const [bookingNotes, setBookingNotes] = useState("");
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [submittingBooking, setSubmittingBooking] = useState(false);
+  const [bookingError, setBookingError] = useState("");
+
+  const todayStr = typeof window !== "undefined" ? new Date().toISOString().split("T")[0] : "";
+
+  // Initialize booking date to tomorrow
+  useEffect(() => {
+    if (selectedMaid) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      setBookingDate(tomorrow.toISOString().split("T")[0]);
+    }
+  }, [selectedMaid]);
+
+  const handleCreateBooking = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedMaid) return;
+    if (!bookingDate) {
+      setBookingError("Please select a booking date.");
+      return;
+    }
+    setSubmittingBooking(true);
+    setBookingError("");
+    try {
+      const totalAmount = selectedMaid.hourlyRate * bookingHours;
+      await api.post("/bookings", {
+        maid_id: selectedMaid.id,
+        booking_date: bookingDate,
+        start_time: bookingTime,
+        hours: bookingHours,
+        total_amount: totalAmount,
+        notes: bookingNotes || ""
+      });
+      setBookingSuccess(true);
+      setTimeout(() => {
+        setSelectedMaid(null);
+        setBookingSuccess(false);
+        setBookingDate("");
+        setBookingTime("09:00");
+        setBookingHours(2);
+        setBookingNotes("");
+      }, 2200);
+    } catch (err: any) {
+      setBookingError(err.response?.data?.detail ?? "Failed to create booking. Please try again.");
+    } finally {
+      setSubmittingBooking(false);
+    }
+  };
+
 
   const fetchMaids = useCallback(async () => {
     setLoading(true);
@@ -218,7 +276,13 @@ export default function FindMaidsPage() {
                     <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400">₹{maid.hourlyRate}</p>
                     <p className="text-[10px] text-zinc-400">/hour</p>
                   </div>
-                  <button className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3.5 py-1.5 rounded-lg font-medium transition-colors">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedMaid(maid);
+                    }}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3.5 py-1.5 rounded-lg font-medium transition-colors"
+                  >
                     Book
                   </button>
                 </div>
@@ -227,6 +291,120 @@ export default function FindMaidsPage() {
           ))}
         </div>
       </div>
+
+      {/* ── Booking Modal ── */}
+      {selectedMaid && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="w-full max-w-md bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl overflow-hidden shadow-2xl p-6 relative"
+          >
+            {bookingSuccess ? (
+              <div className="py-10 text-center space-y-4">
+                <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle2 className="w-10 h-10 text-emerald-500 animate-bounce" />
+                </div>
+                <h3 className="text-xl font-bold text-zinc-900 dark:text-white">Booking Requested! 🎉</h3>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  Your request has been sent to {selectedMaid.name}. They will review and accept shortly.
+                </p>
+              </div>
+            ) : (
+              <>
+                {/* Header */}
+                <div className="flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-zinc-800">
+                  <div>
+                    <h3 className="text-lg font-bold text-zinc-900 dark:text-white">Book {selectedMaid.name}</h3>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Rate: ₹{selectedMaid.hourlyRate}/hour</p>
+                  </div>
+                  <button
+                    onClick={() => setSelectedMaid(null)}
+                    className="p-1.5 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Error */}
+                {bookingError && (
+                  <div className="mt-4 px-4 py-2.5 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-red-600 dark:text-red-400 text-xs">
+                    {bookingError}
+                  </div>
+                )}
+
+                {/* Form */}
+                <form onSubmit={handleCreateBooking} className="mt-4 space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider">Date</label>
+                      <input
+                        type="date"
+                        min={todayStr}
+                        value={bookingDate}
+                        onChange={(e) => setBookingDate(e.target.value)}
+                        required
+                        className="w-full px-3 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider">Start Time</label>
+                      <input
+                        type="time"
+                        value={bookingTime}
+                        onChange={(e) => setBookingTime(e.target.value)}
+                        required
+                        className="w-full px-3 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider">Duration (Hours)</label>
+                    <select
+                      value={bookingHours}
+                      onChange={(e) => setBookingHours(Number(e.target.value))}
+                      className="w-full px-3 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((h) => (
+                        <option key={h} value={h}>{h} hour{h > 1 ? "s" : ""}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider">Notes / Special Instructions</label>
+                    <textarea
+                      value={bookingNotes}
+                      onChange={(e) => setBookingNotes(e.target.value)}
+                      placeholder="e.g. please bring cleaning supplies, wash kitchen area first..."
+                      rows={3}
+                      className="w-full px-3 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Summary & Submit */}
+                  <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+                    <div>
+                      <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">Total Price</p>
+                      <p className="text-xl font-bold text-indigo-600 dark:text-indigo-400">₹{selectedMaid.hourlyRate * bookingHours}</p>
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={submittingBooking}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-6 py-2.5 rounded-xl text-sm transition-colors flex items-center gap-2 disabled:opacity-50"
+                    >
+                      {submittingBooking && <Loader2 className="w-4 h-4 animate-spin" />}
+                      {submittingBooking ? "Booking..." : "Confirm Booking"}
+                    </button>
+                  </div>
+                </form>
+              </>
+            )}
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
+

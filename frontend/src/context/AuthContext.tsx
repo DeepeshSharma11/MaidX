@@ -55,6 +55,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     const { data } = await api.post("/auth/login", { email, password });
+    
+    if (data.requires_otp) {
+      router.push(`/signup?email=${encodeURIComponent(email)}&step=otp`);
+      return;
+    }
+
     setAccessToken(data.access_token);
     setUser(data.user);
 
@@ -63,8 +69,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       maid: "/dashboard/maid",
       client: "/dashboard/client",
     };
-    router.push(routes[data.user.role] ?? "/dashboard/client");
+    
+    let target = routes[data.user.role] ?? "/dashboard/client";
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const redirect = params.get("redirect");
+      // Prevent open-redirect vulnerability: must start with / and not //
+      if (redirect && redirect.startsWith("/") && !redirect.startsWith("//")) {
+        const role = data.user.role;
+        if (redirect.startsWith(`/dashboard/${role}`) || !redirect.startsWith("/dashboard/")) {
+          target = redirect;
+        }
+      }
+    }
+    router.replace(target);
   };
+
 
   const signup = async (email: string, password: string, full_name: string, role: string) => {
     await api.post("/auth/signup", { email, password, full_name, role });
