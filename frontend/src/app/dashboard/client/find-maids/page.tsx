@@ -351,7 +351,7 @@ export default function FindMaidsPage() {
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 260 }}
-              className="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-zinc-900 rounded-t-3xl shadow-2xl max-h-[85vh] overflow-y-auto"
+              className="fixed bottom-16 md:bottom-0 left-0 right-0 z-50 bg-white dark:bg-zinc-900 rounded-t-3xl shadow-2xl max-h-[75vh] md:max-h-[85vh] overflow-y-auto"
             >
               {/* Handle */}
               <div className="flex justify-center pt-3 pb-1">
@@ -398,7 +398,7 @@ export default function FindMaidsPage() {
               </div>
 
               {/* Body */}
-              <div className="px-5 py-5 space-y-5 pb-8">
+              <div className="px-5 py-5 space-y-5 pb-6">
                 {/* Stats Row */}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl p-3 text-center">
