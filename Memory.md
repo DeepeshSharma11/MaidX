@@ -58,7 +58,7 @@ src/
 - [x] Implemented full reviews/ratings system: POST /reviews (post-completion), GET /reviews/maid/{id}, GET /reviews/check/{booking_id}, auto-recalculates maid avg rating+count. Star rating modal in bookings page. Reviews shown in maid detail drawer.
 - [x] Implemented recommendation system: GET /reviews/recommended with weighted score (70% rating + 30% review volume). Top Helpers section on client home dashboard.
 - [x] Fixed mobile layout map overlapping page header issues by applying relative z-10 index layout scope and isolated z-0 stacking context to LocationPicker map.
-- [x] Implemented bilingual translation switch (English/Hindi) in both Client and Maid settings dashboards with localStorage persistence, translating interface text, sidebars, and navigation.
+- [x] Implemented bilingual translation switch (English/Hindi) in both Client and Maid settings dashboards with localStorage persistence, translating interface text, sidebars, navigation, search lists, and booking records globally.
 - [x] Updated application layout metadata and file structure to use brand logo.png as the site favicon.
 
 ## User Roles

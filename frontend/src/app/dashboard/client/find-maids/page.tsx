@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import api from "@/lib/api";
 import { useDeviceTier } from "@/hooks/useDeviceTier";
+import { useTranslation } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
 
 const LocationPicker = dynamic(() => import("@/components/LocationPicker"), {
@@ -48,6 +49,7 @@ const AVATAR_COLORS = [
 ];
 
 export default function FindMaidsPage() {
+  const { t } = useTranslation();
   const [location, setLocation] = useState<{ lat: number; lng: number; address?: string } | undefined>();
   const [activeFilter, setActiveFilter] = useState("All");
   const [showMap, setShowMap] = useState(true);
@@ -177,11 +179,11 @@ export default function FindMaidsPage() {
       <div className="relative z-10 px-4 pt-5 pb-3 bg-zinc-50 dark:bg-zinc-950 border-b border-zinc-200/60 dark:border-zinc-800/60 shadow-sm">
         <div className="flex items-center justify-between mb-1">
           <div>
-            <h1 className="text-xl font-bold text-zinc-900 dark:text-white">Find Helpers</h1>
+            <h1 className="text-xl font-bold text-zinc-900 dark:text-white">{t("find_helpers")}</h1>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
               {location?.address
                 ? <span className="flex items-center gap-1"><MapPin className="w-3 h-3 text-indigo-500" />{location.address}</span>
-                : "Set location to search nearby"}
+                : t("set_location_nearby")}
             </p>
           </div>
           <button
@@ -192,7 +194,7 @@ export default function FindMaidsPage() {
                 : "bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700"
             }`}
           >
-            {showMap ? <><List className="w-3.5 h-3.5" /> List only</> : <><Map className="w-3.5 h-3.5" /> Show map</>}
+            {showMap ? <><List className="w-3.5 h-3.5" /> {t("list_only")}</> : <><Map className="w-3.5 h-3.5" /> {t("show_map")}</>}
           </button>
         </div>
       </div>
@@ -207,7 +209,7 @@ export default function FindMaidsPage() {
         {/* Radius Slider */}
         <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 px-4 py-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Search radius</span>
+            <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{t("search_radius_label")}</span>
             <span className="text-sm font-bold text-indigo-600">{searchRadius} km</span>
           </div>
           <input
@@ -231,7 +233,7 @@ export default function FindMaidsPage() {
                   ? "bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none"
                   : "bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700"
               }`}
-            >{f}</button>
+            >{t(f.toLowerCase().replace(" ", "_"))}</button>
           ))}
         </div>
 
@@ -239,11 +241,11 @@ export default function FindMaidsPage() {
         <div className="flex items-center justify-between pt-1">
           <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">
             {loading
-              ? <span className="flex items-center gap-2 text-zinc-500"><Loader2 className="w-4 h-4 animate-spin" />Searching...</span>
-              : <><span className="text-indigo-600">{maids.length}</span> helpers available</>}
+              ? <span className="flex items-center gap-2 text-zinc-500"><Loader2 className="w-4 h-4 animate-spin" />{t("searching")}</span>
+              : <><span className="text-indigo-600">{maids.length}</span> {t("helpers_available")}</>}
           </p>
           <button className="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 transition-colors">
-            <Filter className="w-3.5 h-3.5" /> Sort by rating
+            <Filter className="w-3.5 h-3.5" /> {t("sort_by_rating")}
           </button>
         </div>
 
@@ -253,9 +255,9 @@ export default function FindMaidsPage() {
             <div className="w-14 h-14 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-3">
               <MapPin className="w-7 h-7 text-zinc-400" />
             </div>
-            <p className="font-semibold text-zinc-700 dark:text-zinc-300 mb-1">No helpers found nearby</p>
+            <p className="font-semibold text-zinc-700 dark:text-zinc-300 mb-1">{t("no_helpers_found")}</p>
             <p className="text-sm text-zinc-500 max-w-xs mx-auto">
-              Try increasing the search radius or changing the skill filter.
+              {t("try_adjust_search")}
             </p>
           </div>
         )}
@@ -282,7 +284,7 @@ export default function FindMaidsPage() {
                     <h3 className="font-semibold text-zinc-900 dark:text-white text-sm leading-tight">{maid.name}</h3>
                     {maid.isVerified && (
                       <span className="text-[10px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-semibold">
-                        ✓ Verified
+                        ✓ {t("verified_badge")}
                       </span>
                     )}
                   </div>
@@ -292,7 +294,7 @@ export default function FindMaidsPage() {
                     <div className="flex items-center gap-1">
                       <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
                       <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">{maid.rating.toFixed(1)}</span>
-                      <span className="text-xs text-zinc-400">({maid.reviews} reviews)</span>
+                      <span className="text-xs text-zinc-400">({maid.reviews} {t("reviews").toLowerCase()})</span>
                     </div>
                     <div className="flex items-center gap-1 text-xs text-zinc-500">
                       <MapPin className="w-3 h-3" />{maid.distance}
@@ -303,7 +305,7 @@ export default function FindMaidsPage() {
                   <div className="flex flex-wrap gap-1 mt-2">
                     {maid.skills.slice(0, 3).map(s => (
                       <span key={s} className="text-xs bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 px-2 py-0.5 rounded-full">
-                        {s}
+                        {t(s.toLowerCase().replace(" ", "_"))}
                       </span>
                     ))}
                     {maid.skills.length > 3 && (
@@ -320,7 +322,7 @@ export default function FindMaidsPage() {
                     <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
                       {maid.hourlyRate ? `₹${maid.hourlyRate}` : "—"}
                     </p>
-                    <p className="text-[10px] text-zinc-400">/hour</p>
+                    <p className="text-[10px] text-zinc-400">/{t("per_hour").toLowerCase()}</p>
                   </div>
                   <ChevronRight className="w-4 h-4 text-zinc-400 mt-1" />
                 </div>
@@ -375,7 +377,7 @@ export default function FindMaidsPage() {
                       <h2 className="text-lg font-bold text-zinc-900 dark:text-white">{detailMaid.name}</h2>
                       {detailMaid.isVerified && (
                         <span className="text-[10px] bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-semibold">
-                          ✓ Verified
+                          ✓ {t("verified_badge")}
                         </span>
                       )}
                     </div>
@@ -383,7 +385,7 @@ export default function FindMaidsPage() {
                       <div className="flex items-center gap-1">
                         <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
                         <span className="text-sm font-bold text-zinc-800 dark:text-zinc-200">{detailMaid.rating.toFixed(1)}</span>
-                        <span className="text-xs text-zinc-400">({detailMaid.reviews} reviews)</span>
+                        <span className="text-xs text-zinc-400">({detailMaid.reviews} {t("reviews").toLowerCase()})</span>
                       </div>
                     </div>
                   </div>
@@ -404,15 +406,15 @@ export default function FindMaidsPage() {
                     <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
                       {detailMaid.hourlyRate ? `₹${detailMaid.hourlyRate}` : "—"}
                     </p>
-                    <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">Per Hour</p>
+                    <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">{t("per_hour")}</p>
                   </div>
                   <div className="bg-amber-50 dark:bg-amber-900/20 rounded-2xl p-3 text-center">
                     <p className="text-lg font-bold text-amber-600 dark:text-amber-400">{detailMaid.rating.toFixed(1)}</p>
-                    <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">Rating</p>
+                    <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">{t("rating")}</p>
                   </div>
                   <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl p-3 text-center">
                     <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">{detailMaid.distance}</p>
-                    <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">Distance</p>
+                    <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-0.5">{t("distance")}</p>
                   </div>
                 </div>
 
@@ -421,12 +423,12 @@ export default function FindMaidsPage() {
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <Briefcase className="w-4 h-4 text-indigo-500" />
-                      <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200">Skills & Expertise</h3>
+                      <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200">{t("skills_expertise")}</h3>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {detailMaid.skills.map(s => (
                         <span key={s} className="text-sm bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-3 py-1 rounded-full font-medium border border-indigo-100 dark:border-indigo-800/50">
-                          {s}
+                          {t(s.toLowerCase().replace(" ", "_"))}
                         </span>
                       ))}
                     </div>
@@ -438,7 +440,7 @@ export default function FindMaidsPage() {
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <Award className="w-4 h-4 text-violet-500" />
-                      <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200">About</h3>
+                      <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200">{t("about")}</h3>
                     </div>
                     <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
                       {detailMaid.bio}
@@ -449,7 +451,7 @@ export default function FindMaidsPage() {
                 {/* No bio placeholder */}
                 {!detailMaid.bio && (
                   <div className="bg-zinc-50 dark:bg-zinc-800/50 rounded-2xl p-4 text-center">
-                    <p className="text-sm text-zinc-400">This helper hasn't added a bio yet.</p>
+                    <p className="text-sm text-zinc-400">{t("no_bio")}</p>
                   </div>
                 )}
 
@@ -458,16 +460,16 @@ export default function FindMaidsPage() {
                   <div className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-800/50 rounded-xl">
                     <Clock className="w-4 h-4 text-zinc-400 shrink-0" />
                     <div>
-                      <p className="text-xs text-zinc-500">Availability</p>
-                      <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Available for booking</p>
+                      <p className="text-xs text-zinc-500">{t("availability")}</p>
+                      <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{t("available_for_booking")}</p>
                     </div>
                   </div>
                   {detailMaid.isVerified && (
                     <div className="flex items-center gap-3 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl">
                       <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                       <div>
-                        <p className="text-xs text-emerald-600 dark:text-emerald-400">Background Verified</p>
-                        <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">Identity & background check passed</p>
+                        <p className="text-xs text-emerald-600 dark:text-emerald-400">{t("bg_verified")}</p>
+                        <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">{t("bg_verified_desc")}</p>
                       </div>
                     </div>
                   )}
@@ -477,7 +479,7 @@ export default function FindMaidsPage() {
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     <MessageSquare className="w-4 h-4 text-amber-500" />
-                    <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200">Reviews ({detailMaid.reviews})</h3>
+                    <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200">{t("reviews")} ({detailMaid.reviews})</h3>
                   </div>
                   {reviewsLoading ? (
                     <div className="flex justify-center py-4">
@@ -513,7 +515,7 @@ export default function FindMaidsPage() {
                   className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3.5 rounded-2xl text-base transition-colors flex items-center justify-center gap-2 shadow-lg shadow-indigo-200 dark:shadow-none"
                 >
                   <Calendar className="w-5 h-5" />
-                  Book This Helper
+                  {t("book_this_helper")}
                 </button>
               </div>
             </motion.div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { useDeviceTier } from "@/hooks/useDeviceTier";
+import { useTranslation } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Clock, Loader2, Star, X, CheckCircle2, MessageSquare } from "lucide-react";
 
@@ -34,6 +35,7 @@ const AVATAR_COLORS = [
 ];
 
 export default function ClientBookingsPage() {
+  const { t } = useTranslation();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -135,14 +137,14 @@ export default function ClientBookingsPage() {
   return (
     <div className="p-4 md:p-8 space-y-6 pb-24 md:pb-8">
       <header>
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">My Bookings</h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">Manage your past and upcoming helper services.</p>
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{t("my_bookings_title")}</h1>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("bookings_desc")}</p>
       </header>
 
       {bookings.length === 0 ? (
         <div className="text-center py-12 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl">
           <Calendar className="w-12 h-12 text-zinc-300 dark:text-zinc-700 mx-auto mb-3" />
-          <p className="text-zinc-500 dark:text-zinc-400">You have no bookings yet.</p>
+          <p className="text-zinc-500 dark:text-zinc-400">{t("no_bookings_yet")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -166,7 +168,7 @@ export default function ClientBookingsPage() {
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-zinc-900 dark:text-white leading-tight">{booking.maid_name}</h3>
                     <span className={`inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${getStatusColor(booking.status)}`}>
-                      {booking.status}
+                      {t(booking.status)}
                     </span>
                   </div>
                   <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400 shrink-0">₹{booking.total_price}</p>
@@ -199,7 +201,7 @@ export default function ClientBookingsPage() {
                       disabled={!!actionLoading}
                       className="text-xs font-semibold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 disabled:opacity-50 transition-colors"
                     >
-                      {actionLoading === booking.id ? "Cancelling..." : "Cancel"}
+                      {actionLoading === booking.id ? t("submitting") : t("cancel")}
                     </button>
                   )}
 
@@ -209,12 +211,12 @@ export default function ClientBookingsPage() {
                       onClick={() => openReview(booking)}
                       className="flex items-center gap-1.5 text-xs font-semibold bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 px-3 py-1.5 rounded-lg transition-colors"
                     >
-                      <Star className="w-3.5 h-3.5" /> Rate & Review
+                      <Star className="w-3.5 h-3.5" /> {t("rate_professional")}
                     </button>
                   )}
                   {booking.status === "completed" && alreadyReviewed && (
                     <span className="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Reviewed
+                      <CheckCircle2 className="w-3.5 h-3.5" /> {t("reviewed")}
                     </span>
                   )}
                 </div>
@@ -244,16 +246,16 @@ export default function ClientBookingsPage() {
                   <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto">
                     <CheckCircle2 className="w-8 h-8 text-emerald-500" />
                   </div>
-                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white">Review Submitted!</h3>
-                  <p className="text-sm text-zinc-500">Thank you for your feedback.</p>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white">{t("review_submitted")}</h3>
+                  <p className="text-sm text-zinc-500">{t("thank_you_feedback")}</p>
                 </div>
               ) : (
                 <>
                   {/* Header */}
                   <div className="flex items-center justify-between mb-5">
                     <div>
-                      <h3 className="text-lg font-bold text-zinc-900 dark:text-white">Rate {review.maidName}</h3>
-                      <p className="text-xs text-zinc-500 mt-0.5">Your feedback helps others choose the right helper</p>
+                      <h3 className="text-lg font-bold text-zinc-900 dark:text-white">{t("rate_helper_title")} {review.maidName}</h3>
+                      <p className="text-xs text-zinc-500 mt-0.5">{t("rating_feedback_desc")}</p>
                     </div>
                     <button
                       onClick={() => setReview(null)}
@@ -290,12 +292,12 @@ export default function ClientBookingsPage() {
                   {/* Comment */}
                   <div className="mb-4">
                     <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-2 uppercase tracking-wider">
-                      Comment (optional)
+                      {t("write_review")}
                     </label>
                     <textarea
                       value={review.comment}
                       onChange={e => setReview(r => r ? { ...r, comment: e.target.value } : r)}
-                      placeholder="How was the service? Any feedback for the helper..."
+                      placeholder={t("comment_placeholder")}
                       rows={3}
                       className="w-full px-3 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
                     />
@@ -313,7 +315,7 @@ export default function ClientBookingsPage() {
                     className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {review.submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <MessageSquare className="w-4 h-4" />}
-                    {review.submitting ? "Submitting..." : "Submit Review"}
+                    {review.submitting ? t("submitting") : t("submit_review")}
                   </button>
                 </>
               )}

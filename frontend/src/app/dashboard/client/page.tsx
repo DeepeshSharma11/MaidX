@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "@/context/LanguageContext";
 import { useDeviceTier } from "@/hooks/useDeviceTier";
 import { motion } from "framer-motion";
 import { Search, Calendar, Star, ArrowRight, ShieldCheck, Sparkles, Loader2 } from "lucide-react";
@@ -11,6 +12,7 @@ import api from "@/lib/api";
 
 export default function ClientHomePage() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const tier = useDeviceTier();
   const router = useRouter();
 
@@ -55,10 +57,10 @@ export default function ClientHomePage() {
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-zinc-900 dark:text-white">
-            Welcome, {user?.full_name?.split(' ')[0] || 'Guest'} 👋
+            {t("welcome")}, {user?.full_name?.split(' ')[0] || 'Guest'} 👋
           </h1>
           <p className="text-sm md:text-base text-zinc-500 dark:text-zinc-400 mt-1">
-            Find the best domestic help near you.
+            {t("welcome_desc")}
           </p>
         </div>
       </header>
@@ -71,12 +73,12 @@ export default function ClientHomePage() {
         >
           <div className="relative z-10">
             <Search className="w-8 h-8 mb-4 opacity-80" />
-            <h2 className="text-xl font-bold mb-2">Find a Maid</h2>
+            <h2 className="text-xl font-bold mb-2">{t("find_maid")}</h2>
             <p className="text-indigo-100 text-sm mb-6 max-w-xs">
-              Search top-rated professionals for cleaning, cooking, and more.
+              {t("find_maid_desc")}
             </p>
             <Link href="/dashboard/client/find-maids" className="inline-flex items-center gap-2 bg-white text-indigo-600 px-4 py-2 rounded-xl text-sm font-bold group-hover:gap-3 transition-all">
-              Search Now <ArrowRight className="w-4 h-4" />
+              {t("search_now")} <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
           {/* Decorative circles */}
@@ -91,13 +93,13 @@ export default function ClientHomePage() {
         >
           <div>
             <Calendar className="w-8 h-8 mb-4 text-emerald-500" />
-            <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">My Bookings</h2>
+            <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">{t("my_bookings_title")}</h2>
             <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-6 max-w-xs">
-              View your upcoming appointments and past service history.
+              {t("bookings_desc")}
             </p>
           </div>
           <Link href="/dashboard/client/bookings" className="inline-flex items-center gap-2 text-zinc-900 dark:text-white font-semibold hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors">
-            View Bookings <ArrowRight className="w-4 h-4" />
+            {t("view_bookings")} <ArrowRight className="w-4 h-4" />
           </Link>
         </ItemWrapper>
       </div>
@@ -112,8 +114,8 @@ export default function ClientHomePage() {
           <ShieldCheck className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
         </div>
         <div>
-          <h3 className="font-bold text-emerald-900 dark:text-emerald-100 text-sm">Verified Professionals</h3>
-          <p className="text-emerald-700 dark:text-emerald-300 text-xs mt-0.5">All our maids undergo strict background checks to ensure your safety and security.</p>
+          <h3 className="font-bold text-emerald-900 dark:text-emerald-100 text-sm">{t("verified_prof")}</h3>
+          <p className="text-emerald-700 dark:text-emerald-300 text-xs mt-0.5">{t("verified_prof_desc")}</p>
         </div>
       </ItemWrapper>
 
@@ -122,10 +124,10 @@ export default function ClientHomePage() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-amber-500" />
-            <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Top Helpers</h2>
+            <h2 className="text-lg font-bold text-zinc-900 dark:text-white">{t("top_helpers")}</h2>
           </div>
           <Link href="/dashboard/client/find-maids" className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1">
-            See all <ArrowRight className="w-3.5 h-3.5" />
+            {t("see_all")} <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
 
@@ -135,7 +137,7 @@ export default function ClientHomePage() {
           </div>
         ) : recommended.length === 0 ? (
           <div className="text-center py-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">No helpers available yet.</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("no_helpers")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -159,10 +161,10 @@ export default function ClientHomePage() {
                       <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300">{m.rating.toFixed(1)}</span>
                     </div>
                     <span className="text-[10px] text-zinc-400">({m.reviews})</span>
-                    {m.hourlyRate && <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 ml-auto">₹{m.hourlyRate}/hr</span>}
+                    {m.hourlyRate && <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 ml-auto">₹{m.hourlyRate}/{t("per_hour").toLowerCase()}</span>}
                   </div>
                   {m.skills.length > 0 && (
-                    <p className="text-[10px] text-zinc-400 mt-1 truncate">{m.skills.slice(0, 3).join(" · ")}</p>
+                    <p className="text-[10px] text-zinc-400 mt-1 truncate">{m.skills.slice(0, 3).map((skill: string) => t(skill.toLowerCase().replace(" ", "_"))).join(" · ")}</p>
                   )}
                 </div>
               </Link>

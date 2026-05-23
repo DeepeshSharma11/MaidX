@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "@/context/LanguageContext";
 import { Calendar, ClipboardList, Star, ArrowRight, Loader2, Clock } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -35,6 +36,7 @@ const colorMap: Record<string, { bg: string; iconColor: string }> = {
 
 export default function MaidDashboard() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const router = useRouter();
   const [upcoming, setUpcoming] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,15 +69,15 @@ export default function MaidDashboard() {
     <div className="max-w-5xl">
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-1">
-          Welcome, {user?.full_name || "Professional"} 💼
+          {t("welcome")}, {user?.full_name || "Professional"} 💼
         </h1>
-        <p className="text-zinc-500 dark:text-zinc-400 mb-8">Manage your schedule and bookings</p>
+        <p className="text-zinc-500 dark:text-zinc-400 mb-8">{t("manage_account")}</p>
 
         <div className="grid sm:grid-cols-3 gap-5 mb-10">
           {[
-            { icon: Calendar, title: "My Schedule", desc: "Set your availability", href: "/dashboard/maid/schedule", color: "indigo" },
-            { icon: ClipboardList, title: "Bookings", desc: "View & manage requests", href: "/dashboard/maid/bookings", color: "emerald" },
-            { icon: Star, title: "My Reviews", desc: "See client feedback", href: "/dashboard/maid/profile", color: "amber" },
+            { icon: Calendar, title: t("my_schedule"), desc: t("set_avail"), href: "/dashboard/maid/schedule", color: "indigo" },
+            { icon: ClipboardList, title: t("bookings"), desc: t("bookings_desc_maid"), href: "/dashboard/maid/bookings", color: "emerald" },
+            { icon: Star, title: t("my_reviews"), desc: t("see_feedback"), href: "/dashboard/maid/profile", color: "amber" },
           ].map((card, i) => {
             const styles = colorMap[card.color] || colorMap.indigo;
             return (
@@ -98,11 +100,11 @@ export default function MaidDashboard() {
         <div className="grid sm:grid-cols-2 gap-5">
           <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 flex flex-col justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">Upcoming Bookings</h2>
+              <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">{t("upcoming_bookings")}</h2>
               {loading ? (
                 <div className="flex py-4"><Loader2 className="w-5 h-5 animate-spin text-emerald-500" /></div>
               ) : upcoming.length === 0 ? (
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">No upcoming bookings.</p>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("no_upcoming")}</p>
               ) : (
                 <div className="space-y-3">
                   {upcoming.map((booking) => (
@@ -120,7 +122,7 @@ export default function MaidDashboard() {
                           ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
                           : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
                       }`}>
-                        {booking.status}
+                        {t(booking.status)}
                       </span>
                     </div>
                   ))}
@@ -128,14 +130,14 @@ export default function MaidDashboard() {
               )}
             </div>
             <Link href="/dashboard/maid/bookings" className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mt-4 flex items-center gap-1 hover:underline">
-              View all bookings <ArrowRight className="w-3.5 h-3.5" />
+              {t("view_all_bookings")} <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
           <div className="p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800">
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">Rating</h2>
+            <h2 className="text-lg font-semibold text-zinc-900 dark:text-white mb-2">{t("rating")}</h2>
             <p className="text-3xl font-bold text-zinc-900 dark:text-white">—</p>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">No reviews yet</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{t("no_reviews")}</p>
           </div>
         </div>
       </motion.div>
