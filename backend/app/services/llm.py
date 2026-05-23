@@ -28,7 +28,8 @@ def call_groq_llama(prompt: str, system_instruction: str = None) -> str:
 
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {api_key}"
+        "Authorization": f"Bearer {api_key}",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
     data = json.dumps(payload).encode("utf-8")
 

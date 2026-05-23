@@ -51,6 +51,7 @@ src/
 - [x] Debugged and refined Client/User Dashboard and pages (implemented client-side Cancel Booking action handler on active bookings list).
 - [x] Refined Landing Page with non-technical friendly copy and created/linked clean Privacy, Terms, Refund, and Cancellation policy pages.
 - [x] Implemented RAG-based AI assistant using Groq Llama-3.3 model for booking automation and booking history checks via floating chatbot drawer interface.
+- [x] Fixed chatbot /chat endpoint backend: added User-Agent header to Groq requests to bypass Cloudflare 403 blocks and fetched email/full_name dynamically to prevent KeyError.
 
 
 ## User Roles

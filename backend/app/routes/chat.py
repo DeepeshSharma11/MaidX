@@ -34,6 +34,19 @@ def parse_end_time(start_time_str: str, hours: int) -> str:
 async def chat_interaction(body: ChatRequest, user: dict = Depends(get_current_user)):
     db = get_supabase()
 
+    # Get user email & full name
+    user_email = "Unknown"
+    user_full_name = "Guest"
+    try:
+        user_res = db.table("users").select("email").eq("id", user["id"]).execute()
+        if user_res.data:
+            user_email = user_res.data[0]["email"]
+        profile_res = db.table("profiles").select("full_name").eq("id", user["id"]).execute()
+        if profile_res.data:
+            user_full_name = profile_res.data[0]["full_name"]
+    except Exception as e:
+        logger.error(f"Error fetching chat user details: {e}")
+
     # RAG Context 1: Current Date & User
     today = datetime.now()
     today_str = today.strftime("%A, %Y-%m-%d")
@@ -87,7 +100,7 @@ async def chat_interaction(body: ChatRequest, user: dict = Depends(get_current_u
 
     full_prompt = (
         f"Today's date and time: {today_str} at {current_time_str}\n\n"
-        f"Logged in user: {user['email']} (Name: {user.get('full_name', 'Guest')}, Role: {user['role']})\n\n"
+        f"Logged in user: {user_email} (Name: {user_full_name}, Role: {user['role']})\n\n"
         f"Available Household Helpers (Maids):\n{maids_context}\n"
         f"User's Existing Bookings:\n{bookings_context}\n"
         f"Conversation History:\n"
