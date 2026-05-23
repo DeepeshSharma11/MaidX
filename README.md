@@ -15,7 +15,7 @@ MaidX is an online service platform that connects domestic workers (maids) with 
 - **Proximity-Based Search**: Robust Haversine distance calculations linking PostgreSQL geolocation columns to Leaflet map UI (hardened against serialization type mismatches).
 - **Mobile-First App Layout**: Responsive persistent bottom navigation with touch-safe Framer Motion spring sliding active indicators for clients, maids, and admins.
 - **Booking & Ticketing**: Complete production-ready booking creation, maid accept/decline scheduling, and support ticket system.
-- **RAG-Based AI Assistant**: Floating chatbot interface powered by Groq Llama-3.3-70b with robust user details lookup and custom headers to automate bookings and checks in plain household terminology.
+- **RAG-Based AI Assistant**: Floating chatbot interface powered by Groq Llama-3.3-70b with robust user details lookup, custom headers, and fallback validation for unconfigured helper parameters (like hourly rates) to automate bookings and checks in plain household terminology.
 
 ## Setup Instructions
 

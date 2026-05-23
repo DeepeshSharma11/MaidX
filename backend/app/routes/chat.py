@@ -58,7 +58,9 @@ async def chat_interaction(body: ChatRequest, user: dict = Depends(get_current_u
     maids_context = ""
     for m in maids:
         skills_str = ", ".join(m.get("skills") or [])
-        maids_context += f"- ID: {m['id']}, Name: {m['full_name']}, Rate: ₹{m['hourly_rate']}/hour, Skills: [{skills_str}], Bio: {m.get('bio') or 'No bio'}\n"
+        rate = m.get("hourly_rate")
+        rate_str = f"₹{rate}/hour" if rate is not None else "Not set"
+        maids_context += f"- ID: {m['id']}, Name: {m['full_name']}, Rate: {rate_str}, Skills: [{skills_str}], Bio: {m.get('bio') or 'No bio'}\n"
 
     # RAG Context 3: User's bookings
     bookings_res = db.table("bookings").select("*").order("booking_date", desc=True).execute()
@@ -136,7 +138,9 @@ async def chat_interaction(body: ChatRequest, user: dict = Depends(get_current_u
                 raise ValueError("Helper not found in the list.")
 
             # Create booking in Supabase
-            total_price = selected_maid["hourly_rate"] * b_hours
+            hourly_rate = selected_maid.get("hourly_rate")
+            hourly_rate_val = float(hourly_rate) if hourly_rate is not None else 0.0
+            total_price = hourly_rate_val * b_hours
             end_time = parse_end_time(b_time, b_hours)
 
             db.table("bookings").insert({
