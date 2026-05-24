@@ -60,6 +60,7 @@ src/
 - [x] Fixed mobile layout map overlapping page header issues by applying relative z-10 index layout scope and isolated z-0 stacking context to LocationPicker map.
 - [x] Implemented bilingual translation switch (English/Hindi) in both Client and Maid settings dashboards with localStorage persistence, translating interface text, sidebars, navigation, search lists, and booking records globally.
 - [x] Updated application layout metadata and file structure to use brand logo.png as the site favicon.
+- [x] Cleaned up README.md to remove references to Memory.md to avoid exposing developer/AI-specific instructions in public documentation.
 
 ## User Roles
 1. **Admin**: Manage users, monitor bookings, resolve tickets, view statistics.
