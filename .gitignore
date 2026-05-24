@@ -56,3 +56,6 @@ Thumbs.db
 # Next.js specific
 *.tsbuildinfo
 next-env.d.ts
+
+# Project Memory (local only)
+Memory.md
