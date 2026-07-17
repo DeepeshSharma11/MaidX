@@ -28,31 +28,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // On mount, try to refresh token via httpOnly cookie or localstorage fallback to restore session
+  // On mount, try to restore session instantly from localStorage cache before verifying
   useEffect(() => {
+    const refresh_token = typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null;
+    const cachedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+
+    if (!refresh_token) {
+      setUser(null);
+      setLoading(false);
+    } else if (cachedUser) {
+      try {
+        setUser(JSON.parse(cachedUser));
+        setLoading(false);
+      } catch {
+        // Leave loading = true and let restoreSession fetch
+      }
+    }
+
     const restoreSession = async () => {
       try {
-        const refresh_token = typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null;
         const { data } = await api.post("/auth/refresh", { refresh_token });
         setAccessToken(data.access_token);
         if (data.refresh_token && typeof window !== "undefined") {
           localStorage.setItem("refresh_token", data.refresh_token);
+        }
+        if (data.user && typeof window !== "undefined") {
+          localStorage.setItem("user", JSON.stringify(data.user));
         }
         setUser(data.user);
       } catch {
         // If refresh fails, user is not logged in.
         if (typeof window !== "undefined") {
           localStorage.removeItem("refresh_token");
+          localStorage.removeItem("user");
         }
         setUser(null);
       } finally {
         setLoading(false);
       }
     };
-    restoreSession();
+
+    if (refresh_token) {
+      restoreSession();
+    }
 
     // Listen for unauthorized events from api interceptor
     const handleUnauthorized = () => {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("user");
+      }
       setUser(null);
       router.push("/login");
     };
@@ -71,6 +96,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessToken(data.access_token);
     if (data.refresh_token && typeof window !== "undefined") {
       localStorage.setItem("refresh_token", data.refresh_token);
+    }
+    if (data.user && typeof window !== "undefined") {
+      localStorage.setItem("user", JSON.stringify(data.user));
     }
     setUser(data.user);
 
@@ -107,6 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       if (typeof window !== "undefined") {
         localStorage.removeItem("refresh_token");
+        localStorage.removeItem("user");
       }
       setUser(null);
       setAccessToken(null);
