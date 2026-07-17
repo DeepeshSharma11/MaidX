@@ -188,8 +188,19 @@ export default function Home() {
               <Link href="/cancellation" className="text-zinc-500 hover:text-indigo-600 transition-colors">Cancellation Policy</Link>
             </div>
           </div>
-          <div className="pt-8 text-xs text-zinc-400 text-center">
+          <div className="pt-8 text-xs text-zinc-400 text-center flex flex-col sm:flex-row items-center justify-between gap-4">
             <p>&copy; {new Date().getFullYear()} MaidX. All rights reserved.</p>
+            <p className="text-zinc-500">
+              Designed & Developed by{" "}
+              <a
+                href="https://github.com/DeepeshSharma11"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-zinc-700 dark:text-zinc-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors underline decoration-dotted underline-offset-4"
+              >
+                Deepesh Sharma
+              </a>
+            </p>
           </div>
         </div>
       </footer>

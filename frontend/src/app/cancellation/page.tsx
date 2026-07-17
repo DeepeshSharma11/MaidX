@@ -93,8 +93,19 @@ export default function CancellationPage() {
 
       {/* Footer */}
       <footer className="bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 py-8">
-        <div className="max-w-7xl mx-auto px-6 text-center text-xs text-zinc-400">
+        <div className="max-w-7xl mx-auto px-6 text-xs text-zinc-400 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p>&copy; {new Date().getFullYear()} MaidX. All rights reserved.</p>
+          <p className="text-zinc-500">
+            Designed & Developed by{" "}
+            <a
+              href="https://github.com/DeepeshSharma11"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-zinc-700 dark:text-zinc-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors underline decoration-dotted underline-offset-4"
+            >
+              Deepesh Sharma
+            </a>
+          </p>
         </div>
       </footer>
     </div>
