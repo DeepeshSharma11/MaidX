@@ -1,6 +1,8 @@
 "use client";
 
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import Card from "@/components/Card";
 import { Shield } from "lucide-react";
 
 export default function PrivacyPage() {
@@ -11,7 +13,7 @@ export default function PrivacyPage() {
 
       {/* Content */}
       <main className="max-w-3xl mx-auto px-6 pt-32 pb-20 flex-1 w-full">
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/60 rounded-3xl p-6 md:p-10 shadow-sm space-y-8">
+        <Card roundedSize="3xl" paddingSize="large" className="space-y-8">
           <header className="border-b border-zinc-100 dark:border-zinc-800 pb-6">
             <div className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center mb-4">
               <Shield className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
@@ -64,26 +66,11 @@ export default function PrivacyPage() {
               If you have any questions about how we handle your details, please reach out to us through our Support section.
             </p>
           </section>
-        </div>
+        </Card>
       </main>
 
       {/* Footer */}
-      <footer className="bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 py-8">
-        <div className="max-w-7xl mx-auto px-6 text-xs text-zinc-400 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p>&copy; {new Date().getFullYear()} MaidX. All rights reserved.</p>
-          <p className="text-zinc-500">
-            Designed & Developed by{" "}
-            <a
-              href="https://github.com/DeepeshSharma11"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-zinc-700 dark:text-zinc-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors underline decoration-dotted underline-offset-4"
-            >
-              Deepesh Sharma
-            </a>
-          </p>
-        </div>
-      </footer>
+      <Footer compact />
     </div>
   );
 }
