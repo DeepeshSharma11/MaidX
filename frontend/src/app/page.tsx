@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, CalendarDays, ShieldCheck, Star, ArrowRight, Shield, ChevronDown, ChevronUp, Check } from "lucide-react";
 import Image from "next/image";
@@ -11,6 +11,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Card from "@/components/Card";
 import PriceCalculator from "@/components/PriceCalculator";
+import api from "@/lib/api";
 
 const FAQ_ITEMS = [
   {
@@ -36,6 +37,38 @@ export default function Home() {
   const tier = useDeviceTier();
   const isHighTier = tier === "high";
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  
+  const [topHelpers, setTopHelpers] = useState<any[]>([]);
+  const [helpersLoading, setHelpersLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchTopHelpers(lat?: number, lng?: number) {
+      setHelpersLoading(true);
+      try {
+        const url = lat && lng ? `/maids/public?lat=${lat}&lng=${lng}&limit=3` : "/maids/public?limit=3";
+        const { data } = await api.get(url);
+        setTopHelpers(data.maids || []);
+      } catch (err) {
+        console.error("Failed to fetch top helpers", err);
+      } finally {
+        setHelpersLoading(false);
+      }
+    }
+
+    if (typeof navigator !== "undefined" && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          fetchTopHelpers(position.coords.latitude, position.coords.longitude);
+        },
+        () => {
+          fetchTopHelpers();
+        },
+        { timeout: 8000 }
+      );
+    } else {
+      fetchTopHelpers();
+    }
+  }, []);
 
   // Use standard elements if tier is not high to avoid framer motion overhead
   const MotionH1 = isHighTier ? motion.h1 : "h1";
@@ -184,76 +217,69 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Anjali Kumari",
-                rating: 4.9,
-                reviews: 124,
-                skills: ["Cleaning", "Cooking"],
-                rate: "120",
-                avatar: "👩‍🍳",
-                verified: true,
-                bio: "5+ years of professional kitchen and deep cleaning experience."
-              },
-              {
-                name: "Ramesh Singh",
-                rating: 4.8,
-                reviews: 98,
-                skills: ["Elderly Care", "Baby Care"],
-                rate: "180",
-                avatar: "👨‍⚕️",
-                verified: true,
-                bio: "Trained medical assistant specializing in patient care and housekeeping."
-              },
-              {
-                name: "Pooja Sharma",
-                rating: 4.9,
-                reviews: 162,
-                skills: ["Cleaning", "Laundry", "Cooking"],
-                rate: "140",
-                avatar: "👩‍💼",
-                verified: true,
-                bio: "Polite, punctual, and highly efficient in laundry management."
-              }
-            ].map((m, idx) => (
-              <Card key={idx} hoverEffect className="flex flex-col h-full bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-2xl">
-                    {m.avatar}
+          {helpersLoading ? (
+            <div className="grid md:grid-cols-3 gap-8 animate-pulse">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-6 h-64 flex flex-col justify-between">
+                  <div className="flex justify-between items-start">
+                    <div className="w-12 h-12 rounded-2xl bg-zinc-200 dark:bg-zinc-800"></div>
+                    <div className="w-20 h-6 bg-zinc-200 dark:bg-zinc-800 rounded-full"></div>
                   </div>
-                  {m.verified && (
-                    <span className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-2.5 py-1 rounded-full">
-                      ✓ Verified
-                    </span>
-                  )}
-                </div>
-                <h3 className="text-lg font-bold text-zinc-900 dark:text-white">{m.name}</h3>
-                <div className="flex items-center gap-1.5 mt-1 mb-3">
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">{m.rating}</span>
-                  <span className="text-xs text-zinc-400">({m.reviews} reviews)</span>
-                </div>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-4 leading-relaxed">{m.bio}</p>
-                <div className="flex flex-wrap gap-1.5 mb-6">
-                  {m.skills.map((skill, sIdx) => (
-                    <span key={sIdx} className="text-[10px] font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 px-2 py-0.5 rounded-full">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-                <div className="mt-auto pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-zinc-400 block uppercase tracking-wider">Hourly Rate</span>
-                    <span className="text-base font-bold text-indigo-600 dark:text-indigo-400">₹{m.rate}/hr</span>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-2/3"></div>
+                    <div className="h-3 bg-zinc-200 dark:bg-zinc-800 rounded w-1/2"></div>
                   </div>
-                  <Link href="/signup?role=client" className="text-xs font-bold bg-zinc-900 dark:bg-zinc-800 hover:bg-zinc-850 dark:hover:bg-zinc-700 text-white px-4 py-2 rounded-xl transition-all">
-                    Book Helper
-                  </Link>
+                  <div className="h-10 bg-zinc-200 dark:bg-zinc-800 rounded-xl w-full"></div>
                 </div>
-              </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : topHelpers.length === 0 ? (
+            <div className="text-center py-12 bg-white dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/60 rounded-3xl">
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">No helpers registered in this region yet. Be the first to join!</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-3 gap-8">
+              {topHelpers.map((m, idx) => (
+                <Card key={idx} hoverEffect className="flex flex-col h-full bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-2xl">
+                      {m.avatar}
+                    </div>
+                    {m.isVerified && (
+                      <span className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-2.5 py-1 rounded-full">
+                        ✓ Verified
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-white">{m.name}</h3>
+                  <div className="flex items-center gap-1.5 mt-1 mb-3">
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">{m.rating.toFixed(1)}</span>
+                    <span className="text-xs text-zinc-400">({m.reviews} reviews)</span>
+                  </div>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-4 leading-relaxed">{m.bio || "No professional bio provided yet."}</p>
+                  <div className="flex flex-wrap gap-1.5 mb-6">
+                    {m.skills.slice(0, 3).map((skill: string, sIdx: number) => (
+                      <span key={sIdx} className="text-[10px] font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 px-2 py-0.5 rounded-full">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-auto pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-zinc-400 block uppercase tracking-wider font-semibold">Hourly Rate</span>
+                      <span className="text-base font-bold text-indigo-600 dark:text-indigo-400">
+                        {m.hourlyRate ? `₹${m.hourlyRate}/hr` : "Negot."}
+                      </span>
+                    </div>
+                    <Link href={user ? "/dashboard/client/find-maids" : "/signup?role=client"} className="text-xs font-bold bg-zinc-900 dark:bg-zinc-800 hover:bg-zinc-850 dark:hover:bg-zinc-700 text-white px-4 py-2 rounded-xl transition-all">
+                      Book Helper
+                    </Link>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

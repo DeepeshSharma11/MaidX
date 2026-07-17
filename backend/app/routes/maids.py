@@ -15,6 +15,59 @@ def haversine(lat1, lon1, lat2, lon2) -> float:
          * math.sin(dlon / 2) ** 2)
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
+@router.get("/public")
+async def get_public_maids(
+    lat: float = Query(None),
+    lng: float = Query(None),
+    limit: int = Query(6)
+):
+    db = get_supabase()
+    res = db.table("profiles").select(
+        "id, full_name, rating, reviews_count, hourly_rate, skills, bio, city, is_verified, lat, lng"
+    ).eq("role", "maid").execute()
+    
+    maids = res.data or []
+    scored_maids = []
+    
+    for m in maids:
+        dist_km = None
+        maid_lat = m.get("lat")
+        maid_lng = m.get("lng")
+        
+        if lat is not None and lng is not None and maid_lat is not None and maid_lng is not None:
+            dist_km = haversine(lat, lng, float(maid_lat), float(maid_lng))
+            
+        r = float(m.get("rating") or 0.0)
+        rc = int(m.get("reviews_count") or 0)
+        popularity_score = (r / 5.0) * 0.7 + min(rc, 50) / 50.0 * 0.3
+        
+        scored_maids.append({
+            "id": m["id"],
+            "name": m["full_name"],
+            "rating": r,
+            "reviews": rc,
+            "hourlyRate": float(m["hourly_rate"]) if m.get("hourly_rate") is not None else None,
+            "skills": m.get("skills") or [],
+            "bio": m.get("bio") or "",
+            "city": m.get("city") or "",
+            "isVerified": m.get("is_verified", False),
+            "avatar": m["full_name"][:2].upper() if m.get("full_name") else "MD",
+            "distance_km": dist_km,
+            "popularity": popularity_score
+        })
+        
+    if lat is not None and lng is not None:
+        def sort_key(x):
+            d = x["distance_km"]
+            if d is None:
+                return (1e9, -x["popularity"])
+            return (d, -x["popularity"])
+        sorted_maids = sorted(scored_maids, key=sort_key)
+    else:
+        sorted_maids = sorted(scored_maids, key=lambda x: x["popularity"], reverse=True)
+        
+    return {"maids": sorted_maids[:limit]}
+
 @router.get("/")
 async def search_maids(
     lat: float = Query(None),
