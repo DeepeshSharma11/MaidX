@@ -5,6 +5,7 @@ import api from "@/lib/api";
 import { useDeviceTier } from "@/hooks/useDeviceTier";
 import { motion } from "framer-motion";
 import { Calendar, Clock, Loader2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { BookingCardSkeleton } from "@/components/Skeleton";
 
 interface Booking {
   id: string;
@@ -63,7 +64,21 @@ export default function MaidBookingsPage() {
 
   const filtered = activeTab === "all" ? bookings : bookings.filter(b => b.status === activeTab);
 
-  if (loading) return <div className="p-8 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /></div>;
+  if (loading) {
+    return (
+      <div className="p-4 md:p-8 space-y-6 pb-24 md:pb-8 max-w-5xl mx-auto w-full">
+        <div className="space-y-2">
+          <div className="h-8 bg-zinc-200 dark:bg-zinc-800 rounded w-32 animate-pulse"></div>
+          <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-80 animate-pulse"></div>
+        </div>
+        <div className="grid md:grid-cols-2 gap-4 pt-4">
+          {[1, 2, 3, 4].map((i) => (
+            <BookingCardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-8 space-y-5 pb-24 md:pb-8 max-w-5xl mx-auto md:mx-0">

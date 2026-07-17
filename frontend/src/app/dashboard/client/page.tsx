@@ -9,6 +9,7 @@ import { Search, Calendar, Star, ArrowRight, ShieldCheck, Sparkles, Loader2 } fr
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
+import { MaidCardSkeleton } from "@/components/Skeleton";
 
 export default function ClientHomePage() {
   const { user } = useAuth();
@@ -132,8 +133,10 @@ export default function ClientHomePage() {
         </div>
 
         {recLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {[1, 2, 3].map((i) => (
+              <MaidCardSkeleton key={i} />
+            ))}
           </div>
         ) : recommended.length === 0 ? (
           <div className="text-center py-8 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl">

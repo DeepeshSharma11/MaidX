@@ -5,7 +5,8 @@ import api from "@/lib/api";
 import { useDeviceTier } from "@/hooks/useDeviceTier";
 import { useTranslation } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Clock, Loader2, Star, X, CheckCircle2, MessageSquare } from "lucide-react";
+import { Calendar, Clock, Star, X, CheckCircle2, MessageSquare } from "lucide-react";
+import { BookingCardSkeleton } from "@/components/Skeleton";
 
 interface Booking {
   id: string;
@@ -131,7 +132,19 @@ export default function ClientBookingsPage() {
   };
 
   if (loading) {
-    return <div className="p-8 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-indigo-500" /></div>;
+    return (
+      <div className="p-4 md:p-8 space-y-6 pb-24 md:pb-8 max-w-5xl mx-auto w-full">
+        <div className="space-y-2">
+          <div className="h-8 bg-zinc-200 dark:bg-zinc-800 rounded w-48 animate-pulse"></div>
+          <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-64 animate-pulse"></div>
+        </div>
+        <div className="grid md:grid-cols-2 gap-4 pt-4">
+          {[1, 2, 3, 4].map((i) => (
+            <BookingCardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
