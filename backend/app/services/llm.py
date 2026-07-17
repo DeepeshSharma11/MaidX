@@ -7,7 +7,7 @@ from app.core.config import get_settings
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
-def call_groq_llama(prompt: str, system_instruction: str = None) -> str:
+def call_groq_llama(prompt_or_messages: str | list, system_instruction: str = None) -> str:
     api_key = settings.GROQ_API_KEY
     if not api_key:
         logger.warning("GROQ_API_KEY is not configured.")
@@ -15,10 +15,13 @@ def call_groq_llama(prompt: str, system_instruction: str = None) -> str:
 
     url = "https://api.groq.com/openai/v1/chat/completions"
 
-    messages = []
-    if system_instruction:
-        messages.append({"role": "system", "content": system_instruction})
-    messages.append({"role": "user", "content": prompt})
+    if isinstance(prompt_or_messages, list):
+        messages = prompt_or_messages
+    else:
+        messages = []
+        if system_instruction:
+            messages.append({"role": "system", "content": system_instruction})
+        messages.append({"role": "user", "content": prompt_or_messages})
 
     payload = {
         "model": "llama-3.3-70b-versatile",

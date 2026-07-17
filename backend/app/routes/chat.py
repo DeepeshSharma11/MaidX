@@ -106,24 +106,26 @@ async def chat_interaction(body: ChatRequest, user: dict = Depends(get_current_u
         "8. CRITICAL: If the user says 'cancel', 'cancel karo', 'cancel kardo', 'hatao', 'band karo' — they want to CANCEL an existing booking. NEVER book a new one.\n"
         "9. Never repeat information already given. Never say 'I'd be happy to help'. Just do it.\n"
         "10. If the user writes in Hindi or Hinglish, reply in the same language — short and clear.\n"
-        "11. Do NOT ask for confirmation — act immediately once intent is clear."
-    )
-
-    full_prompt = (
+        "11. Do NOT ask for confirmation — act immediately once intent is clear.\n"
+        "12. Greet the user politely by name and ask how you can help. Do NOT list available helpers or bookings on simple greetings (like 'hello', 'hi', 'hey') unless explicitly asked.\n\n"
+        f"LIVE CONTEXT:\n"
         f"Today: {today_str} at {current_time_str}\n"
         f"User: {user_full_name} ({user_email})\n\n"
         f"Available Helpers:\n{maids_context}\n"
         f"User's Bookings:\n{bookings_context}\n"
-        f"Chat:\n"
     )
 
+    messages_payload = [
+        {"role": "system", "content": system_instruction}
+    ]
+
     for h in body.history[-6:]:
-        prefix = "User: " if h.role == "user" else "AI: "
-        full_prompt += f"{prefix}{h.text}\n"
+        role = "user" if h.role == "user" else "assistant"
+        messages_payload.append({"role": role, "content": h.text})
 
-    full_prompt += f"User: {body.message}\nAI: "
+    messages_payload.append({"role": "user", "content": body.message})
 
-    response_text = call_groq_llama(full_prompt, system_instruction)
+    response_text = call_groq_llama(messages_payload)
 
     booking_created = False
     booking_cancelled = False

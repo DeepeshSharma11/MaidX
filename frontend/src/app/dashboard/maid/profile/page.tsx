@@ -209,12 +209,24 @@ export default function MaidProfilePage() {
     return <div className="p-8 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /></div>;
   }
 
+  const showOnboardAlert = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("onboard") === "true";
+
   return (
     <div className="p-4 md:p-8 space-y-6 pb-24 md:pb-8 max-w-2xl mx-auto md:mx-0">
       <header>
         <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">My Profile</h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">Update your professional details.</p>
       </header>
+
+      {showOnboardAlert && (
+        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-2xl p-4 flex items-start gap-3">
+          <span className="text-lg">⚠️</span>
+          <div>
+            <h3 className="font-bold text-amber-800 dark:text-amber-300 text-sm">Profile Incomplete</h3>
+            <p className="text-amber-700 dark:text-amber-400 text-xs mt-0.5">Please add your phone number to complete onboarding and access all features of your helper dashboard.</p>
+          </div>
+        </div>
+      )}
 
       {/* ── Location Section ── */}
       <ItemWrapper {...animProps} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5">
