@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fbf9f6; /* Premium warm alabaster */
-  --foreground: #2c2724; /* Warm premium charcoal */
+  --background: #fafaf9; /* Premium soft white background */
+  --foreground: #1c1917; /* Soft premium off-black */
 }
 
 @theme inline {
@@ -11,19 +11,19 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* Override Tailwind gray palettes to warm sepia / cozy tones */
-  --color-slate-50: #fbf9f6;  /* Warm background */
-  --color-zinc-50: #faf6f0;   /* Muted warm background */
-  --color-zinc-100: #f4eee3;  /* Warm borders / elements */
-  --color-zinc-200: #e9decb;  /* Stronger warm border */
-  --color-zinc-300: #dbcdb6;
-  --color-zinc-400: #bba990;
-  --color-zinc-500: #9b8770;
-  --color-zinc-600: #7b6955;
-  --color-zinc-700: #5b4d3d;
-  --color-zinc-800: #42362b;
-  --color-zinc-900: #2c221a;  /* Cozy dark mode surface */
-  --color-zinc-950: #1b1410;  /* Cozy dark mode background */
+  /* Override Tailwind gray palettes to premium soft stone tones */
+  --color-slate-50: #fafaf9;  /* Soft white background */
+  --color-zinc-50: #f5f5f4;   /* Soft off-white background */
+  --color-zinc-100: #e7e5e4;  /* Soft border */
+  --color-zinc-200: #d6d3d1;  /* Muted border */
+  --color-zinc-300: #a8a29e;
+  --color-zinc-400: #78716c;
+  --color-zinc-500: #57534e;
+  --color-zinc-600: #44403c;
+  --color-zinc-700: #292524;
+  --color-zinc-800: #1c1917;
+  --color-zinc-900: #0c0a09;  /* Soft dark mode surface */
+  --color-zinc-950: #080706;  /* Soft dark mode background */
 }
 
 @layer utilities {
@@ -34,8 +34,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #1b1410; /* Cozy sepia black */
-    --foreground: #f4eee3; /* Cozy warm text */
+    --background: #0c0a09; /* Soft cozy dark black */
+    --foreground: #fafaf9; /* Soft cozy light text */
   }
 }
 
