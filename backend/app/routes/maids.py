@@ -29,6 +29,19 @@ async def search_maids(
     if skill and skill != "All":
         query = query.contains("skills", [skill])
 
+    if lat is not None and lng is not None:
+        # Bounding box filter (1 degree latitude ~ 111km, 1 degree longitude ~ 111 * cos(lat) km)
+        # Using maximum of client search radius and 50km to catch potential candidates
+        max_r = max(float(radius), 50.0)
+        lat_delta = max_r / 111.0
+        cos_lat = math.cos(math.radians(lat))
+        lng_delta = max_r / (111.0 * cos_lat) if cos_lat > 0. else max_r / 111.0
+        
+        query = query.gte("lat", lat - lat_delta)\
+                     .lte("lat", lat + lat_delta)\
+                     .gte("lng", lng - lng_delta)\
+                     .lte("lng", lng + lng_delta)
+
     res = query.execute()
 
     with_location = []   # maids with GPS coords

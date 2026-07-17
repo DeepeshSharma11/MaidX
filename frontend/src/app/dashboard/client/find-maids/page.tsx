@@ -54,9 +54,17 @@ export default function FindMaidsPage() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [showMap, setShowMap] = useState(true);
   const [searchRadius, setSearchRadius] = useState(5);
+  const [debouncedRadius, setDebouncedRadius] = useState(5);
   const [maids, setMaids] = useState<Maid[]>([]);
   const [loading, setLoading] = useState(false);
   const tier = useDeviceTier();
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedRadius(searchRadius);
+    }, 450);
+    return () => clearTimeout(handler);
+  }, [searchRadius]);
 
   // Detail drawer state
   const [detailMaid, setDetailMaid] = useState<Maid | null>(null);
@@ -153,7 +161,7 @@ export default function FindMaidsPage() {
         params.append("lat", location.lat.toString());
         params.append("lng", location.lng.toString());
       }
-      params.append("radius", searchRadius.toString());
+      params.append("radius", debouncedRadius.toString());
       if (activeFilter !== "All") params.append("skill", activeFilter);
       const { data } = await api.get(`/maids?${params.toString()}`);
       setMaids(data.maids || []);
@@ -162,7 +170,7 @@ export default function FindMaidsPage() {
     } finally {
       setLoading(false);
     }
-  }, [location, searchRadius, activeFilter]);
+  }, [location, debouncedRadius, activeFilter]);
 
   useEffect(() => { fetchMaids(); }, [fetchMaids]);
 

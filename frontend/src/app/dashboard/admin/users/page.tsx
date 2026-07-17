@@ -19,7 +19,32 @@ export default function AdminUsersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState<UserData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeDropdownUserId, setActiveDropdownUserId] = useState<string | null>(null);
   const tier = useDeviceTier();
+
+  useEffect(() => {
+    const handleOutsideClick = () => setActiveDropdownUserId(null);
+    window.addEventListener("click", handleOutsideClick);
+    return () => window.removeEventListener("click", handleOutsideClick);
+  }, []);
+
+  const toggleStatus = async (userId: string) => {
+    try {
+      const { data } = await api.patch(`/admin/users/${userId}/status`);
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: data.is_active ? "active" : "inactive" } : u));
+    } catch (err) {
+      console.error("Failed to toggle status", err);
+    }
+  };
+
+  const toggleVerify = async (userId: string) => {
+    try {
+      const { data } = await api.patch(`/admin/users/${userId}/verify`);
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, verified: data.is_verified } : u));
+    } catch (err) {
+      console.error("Failed to toggle verification", err);
+    }
+  };
 
   useEffect(() => {
     async function fetchUsers() {
@@ -124,10 +149,35 @@ export default function AdminUsersPage() {
                 </span>
               </div>
 
-              <div className="col-span-1 md:col-span-2 flex justify-end md:block text-right mt-2 md:mt-0">
-                <button className="p-1.5 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors">
+              <div className="col-span-1 md:col-span-2 flex justify-end md:block text-right mt-2 md:mt-0 relative">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveDropdownUserId(activeDropdownUserId === user.id ? null : user.id);
+                  }}
+                  className="p-1.5 text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+                >
                   <MoreVertical className="w-5 h-5" />
                 </button>
+
+                {activeDropdownUserId === user.id && (
+                  <div className="absolute right-0 mt-1 w-44 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xl z-50 py-1 text-left">
+                    <button
+                      onClick={() => toggleStatus(user.id)}
+                      className="w-full px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex items-center gap-2"
+                    >
+                      {user.status === "active" ? "Deactivate" : "Activate"}
+                    </button>
+                    {user.role === "maid" && (
+                      <button
+                        onClick={() => toggleVerify(user.id)}
+                        className="w-full px-4 py-2.5 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex items-center gap-2 border-t border-zinc-100 dark:border-zinc-800"
+                      >
+                        {user.verified ? "Remove Verify" : "Verify Maid"}
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </ItemWrapper>
           ))}

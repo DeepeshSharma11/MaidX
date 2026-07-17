@@ -111,7 +111,7 @@ async def get_recommended_maids(
 
     query = db.table("profiles").select(
         "id, full_name, rating, reviews_count, hourly_rate, skills, bio, city, is_verified, lat, lng"
-    ).eq("role", "maid")
+    ).eq("role", "maid").order("rating", desc=True).limit(100)
 
     if skill:
         query = query.contains("skills", [skill])

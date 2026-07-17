@@ -62,18 +62,20 @@ async def chat_interaction(body: ChatRequest, user: dict = Depends(get_current_u
         rate_str = f"₹{rate}/hour" if rate is not None else "Not set"
         maids_context += f"- ID: {m['id']}, Name: {m['full_name']}, Rate: {rate_str}, Skills: [{skills_str}], Bio: {m.get('bio') or 'No bio'}\n"
 
-    # RAG Context 3: User's bookings
-    bookings_res = db.table("bookings").select("*").order("booking_date", desc=True).execute()
-    all_bookings = bookings_res.data or []
-    user_bookings = []
+    # RAG Context 3: User's bookings (filter at database level and limit payload size)
+    bookings_res = db.table("bookings")\
+        .select("*")\
+        .or_(f"client_id.eq.{user['id']},maid_id.eq.{user['id']}")\
+        .order("booking_date", desc=True)\
+        .limit(30)\
+        .execute()
+    user_bookings = bookings_res.data or []
     
     # Map maid/client names
     profile_ids = set()
-    for b in all_bookings:
-        if b["client_id"] == user["id"] or b["maid_id"] == user["id"]:
-            user_bookings.append(b)
-            profile_ids.add(b["client_id"])
-            profile_ids.add(b["maid_id"])
+    for b in user_bookings:
+        profile_ids.add(b["client_id"])
+        profile_ids.add(b["maid_id"])
             
     profiles_res = db.table("profiles").select("id, full_name").in_("id", list(profile_ids)).execute()
     profile_map = {p["id"]: p["full_name"] for p in (profiles_res.data or [])}

@@ -77,6 +77,16 @@ async def toggle_user_status(user_id: str):
     db.table("users").update({"is_active": not current}).eq("id", user_id).execute()
     return {"is_active": not current}
 
+@router.patch("/users/{user_id}/verify", dependencies=[Depends(require_role(["admin"]))])
+async def toggle_user_verification(user_id: str):
+    db = get_supabase()
+    profile_res = db.table("profiles").select("id, is_verified").eq("id", user_id).execute()
+    if not profile_res.data:
+        raise HTTPException(status_code=404, detail="User profile not found")
+    current = profile_res.data[0]["is_verified"]
+    db.table("profiles").update({"is_verified": not current}).eq("id", user_id).execute()
+    return {"is_verified": not current}
+
 @router.post("/settings/change-password")
 async def admin_change_password(body: PasswordChange, user: dict = Depends(require_role(["admin"]))):
     db = get_supabase()
