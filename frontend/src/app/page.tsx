@@ -1,7 +1,6 @@
-"use client";
-
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, CalendarDays, ShieldCheck, Star, ArrowRight, Shield } from "lucide-react";
+import { Search, CalendarDays, ShieldCheck, Star, ArrowRight, Shield, ChevronDown, ChevronUp, Check } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
@@ -9,11 +8,32 @@ import { useDeviceTier } from "@/hooks/useDeviceTier";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Card from "@/components/Card";
+import PriceCalculator from "@/components/PriceCalculator";
+
+const FAQ_ITEMS = [
+  {
+    q: "How does MaidX screen helpers?",
+    a: "Every helper undergoes a rigorous verification process, background check, and reference verification before joining our platform."
+  },
+  {
+    q: "How do I pay my helper?",
+    a: "Payments are processed securely through the website. You can pay using UPI, card, or net banking once the booking is completed."
+  },
+  {
+    q: "Can I reschedule or cancel a booking?",
+    a: "Yes! Bookings can be canceled or rescheduled up to 2 hours before the start time directly from your dashboard."
+  },
+  {
+    q: "Are the helpers experienced?",
+    a: "Yes, we focus on listing helpers with solid experience and a history of positive community reviews in your neighborhood."
+  }
+];
 
 export default function Home() {
   const { user } = useAuth();
   const tier = useDeviceTier();
   const isHighTier = tier === "high";
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   // Use standard elements if tier is not high to avoid framer motion overhead
   const MotionH1 = isHighTier ? motion.h1 : "h1";
@@ -89,8 +109,27 @@ export default function Home() {
         </div>
       </main>
 
+      {/* Trust Metrics Bar */}
+      <section className="py-8 bg-zinc-100/50 dark:bg-zinc-900/30 border-y border-zinc-200/40 dark:border-zinc-800/40">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            {[
+              { val: "5,000+", label: "Happy Households" },
+              { val: "500+", label: "Verified Helpers" },
+              { val: "4.9/5", label: "Average Rating" },
+              { val: "100%", label: "Safe & Insured" }
+            ].map((m, idx) => (
+              <div key={idx} className="space-y-1">
+                <p className="text-3xl font-extrabold text-indigo-600 dark:text-indigo-400">{m.val}</p>
+                <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">{m.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Features Grid */}
-      <section className="py-20 bg-white dark:bg-zinc-900/50 border-t border-zinc-200/50 dark:border-zinc-800/50">
+      <section className="py-20 bg-white dark:bg-zinc-900/50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-8">
             {[
@@ -131,6 +170,102 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Top Rated Helpers Showcase */}
+      <section className="py-20 bg-zinc-50/50 dark:bg-zinc-950 border-t border-zinc-200/50 dark:border-zinc-800/50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-extrabold text-zinc-900 dark:text-white tracking-tight sm:text-4xl mb-4">
+              Top Rated Helpers in Your Area
+            </h2>
+            <p className="text-zinc-500 dark:text-zinc-400 max-w-xl mx-auto">
+              Compare profiles and choose from our most requested professionals.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                name: "Anjali Kumari",
+                rating: 4.9,
+                reviews: 124,
+                skills: ["Cleaning", "Cooking"],
+                rate: "120",
+                avatar: "👩‍🍳",
+                verified: true,
+                bio: "5+ years of professional kitchen and deep cleaning experience."
+              },
+              {
+                name: "Ramesh Singh",
+                rating: 4.8,
+                reviews: 98,
+                skills: ["Elderly Care", "Baby Care"],
+                rate: "180",
+                avatar: "👨‍⚕️",
+                verified: true,
+                bio: "Trained medical assistant specializing in patient care and housekeeping."
+              },
+              {
+                name: "Pooja Sharma",
+                rating: 4.9,
+                reviews: 162,
+                skills: ["Cleaning", "Laundry", "Cooking"],
+                rate: "140",
+                avatar: "👩‍💼",
+                verified: true,
+                bio: "Polite, punctual, and highly efficient in laundry management."
+              }
+            ].map((m, idx) => (
+              <Card key={idx} hoverEffect className="flex flex-col h-full bg-white dark:bg-zinc-900 border border-zinc-200/50 dark:border-zinc-800/50 rounded-3xl p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-2xl">
+                    {m.avatar}
+                  </div>
+                  {m.verified && (
+                    <span className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-2.5 py-1 rounded-full">
+                      ✓ Verified
+                    </span>
+                  )}
+                </div>
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-white">{m.name}</h3>
+                <div className="flex items-center gap-1.5 mt-1 mb-3">
+                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                  <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">{m.rating}</span>
+                  <span className="text-xs text-zinc-400">({m.reviews} reviews)</span>
+                </div>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2 mb-4 leading-relaxed">{m.bio}</p>
+                <div className="flex flex-wrap gap-1.5 mb-6">
+                  {m.skills.map((skill, sIdx) => (
+                    <span key={sIdx} className="text-[10px] font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 px-2 py-0.5 rounded-full">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+                <div className="mt-auto pt-4 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-zinc-400 block uppercase tracking-wider">Hourly Rate</span>
+                    <span className="text-base font-bold text-indigo-600 dark:text-indigo-400">₹{m.rate}/hr</span>
+                  </div>
+                  <Link href="/signup?role=client" className="text-xs font-bold bg-zinc-900 dark:bg-zinc-800 hover:bg-zinc-850 dark:hover:bg-zinc-700 text-white px-4 py-2 rounded-xl transition-all">
+                    Book Helper
+                  </Link>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Interactive Estimator */}
+      <section className="py-20 bg-white dark:bg-zinc-900/50 border-t border-zinc-200/50 dark:border-zinc-800/50">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-extrabold text-zinc-900 dark:text-white tracking-tight">Estimate Your Cost</h2>
+            <p className="text-zinc-500 dark:text-zinc-400 mt-2 max-w-sm mx-auto">Adjust details to get an instant cost estimate for services.</p>
+          </div>
+          <PriceCalculator />
+        </div>
+      </section>
+
       {/* How it works */}
       <section className="py-20 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200/50 dark:border-zinc-800/50">
         <div className="max-w-7xl mx-auto px-6">
@@ -154,8 +289,66 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section className="py-20 bg-white dark:bg-zinc-900/50 border-t border-zinc-200/50 dark:border-zinc-800/50">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-extrabold text-zinc-900 dark:text-white tracking-tight">Frequently Asked Questions</h2>
+            <p className="text-zinc-500 dark:text-zinc-400 mt-2">Have questions? We've got answers.</p>
+          </div>
+
+          <div className="space-y-4">
+            {FAQ_ITEMS.map((faq, idx) => {
+              const isOpen = openFaq === idx;
+              return (
+                <div key={idx} className="border border-zinc-200/60 dark:border-zinc-800 rounded-2xl overflow-hidden bg-slate-50/50 dark:bg-zinc-950/40">
+                  <button
+                    onClick={() => setOpenFaq(isOpen ? null : idx)}
+                    className="w-full px-6 py-4.5 flex justify-between items-center text-left text-zinc-900 dark:text-white hover:bg-zinc-100/50 dark:hover:bg-zinc-800/40 transition-colors"
+                  >
+                    <span className="font-semibold text-sm md:text-base">{faq.q}</span>
+                    {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </button>
+                  {isOpen && (
+                    <div className="px-6 pb-4.5 pt-1 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action Section */}
+      <section className="py-16 bg-white dark:bg-zinc-950">
+        <div className="max-w-5xl mx-auto px-6">
+          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-indigo-600 to-violet-600 px-6 py-12 md:p-16 text-center shadow-xl">
+            <div className="relative z-10 max-w-xl mx-auto space-y-6">
+              <h2 className="text-3xl font-extrabold text-white md:text-4xl leading-tight">Ready to find your perfect household help?</h2>
+              <p className="text-indigo-100 text-sm md:text-base">Join thousands of households using MaidX to manage their cleaning, cooking, and chores effortlessly.</p>
+              <div className="pt-4 flex flex-col sm:flex-row justify-center gap-3">
+                <Link href={user ? (user.role === 'client' ? "/dashboard/client/find-maids" : `/dashboard/${user.role}`) : "/signup?role=client"} className="bg-white text-indigo-600 font-bold px-8 py-3.5 rounded-full shadow-md hover:bg-zinc-50 hover:scale-105 active:scale-95 transition-all">
+                  Get Started Now
+                </Link>
+                {!user && (
+                  <Link href="/signup?role=maid" className="bg-indigo-700/40 hover:bg-indigo-700/60 border border-indigo-400/40 text-white font-bold px-8 py-3.5 rounded-full hover:scale-105 active:scale-95 transition-all">
+                    Register as Helper
+                  </Link>
+                )}
+              </div>
+            </div>
+            {/* Background elements */}
+            <div className="absolute -right-8 -top-8 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
+            <div className="absolute -bottom-8 left-12 w-32 h-32 bg-indigo-400/30 rounded-full blur-xl"></div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <Footer />
+
     </div>
   );
 }
