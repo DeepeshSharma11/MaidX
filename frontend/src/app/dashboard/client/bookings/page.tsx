@@ -5,7 +5,7 @@ import api from "@/lib/api";
 import { useDeviceTier } from "@/hooks/useDeviceTier";
 import { useTranslation } from "@/context/LanguageContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Clock, Star, X, CheckCircle2, MessageSquare } from "lucide-react";
+import { Calendar, Clock, Star, X, CheckCircle2, MessageSquare, Loader2 } from "lucide-react";
 import { BookingCardSkeleton } from "@/components/Skeleton";
 
 interface Booking {
