@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import NextTopLoader from "nextjs-toploader";
+import ChatBotButton from "@/components/ChatBotButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +36,10 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <NextTopLoader color="#4f46e5" showSpinner={false} height={3} />
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <ChatBotButton />
+        </Providers>
       </body>
     </html>
   );

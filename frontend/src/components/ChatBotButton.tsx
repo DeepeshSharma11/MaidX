@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { MessageSquare, X, Send, Loader2, Bot, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 
 interface Message {
   role: "user" | "model";
@@ -11,6 +12,7 @@ interface Message {
 }
 
 export default function ChatBotButton() {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -64,6 +66,8 @@ export default function ChatBotButton() {
       setLoading(false);
     }
   };
+
+  if (!user) return null;
 
   return (
     <>

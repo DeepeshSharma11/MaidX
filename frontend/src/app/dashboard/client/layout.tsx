@@ -3,7 +3,6 @@
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import MobileNav from "@/components/MobileNav";
-import ChatBotButton from "@/components/ChatBotButton";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,7 +11,6 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         <DashboardSidebar />
         <main className="flex-1 md:ml-64 min-w-0 overflow-x-hidden">{children}</main>
         <MobileNav />
-        <ChatBotButton />
       </div>
     </ProtectedRoute>
   );
