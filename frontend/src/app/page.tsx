@@ -5,14 +5,47 @@ import { motion } from "framer-motion";
 import { Search, CalendarDays, ShieldCheck, Star, ArrowRight, Shield } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { useDeviceTier } from "@/hooks/useDeviceTier";
 
 export default function Home() {
   const { user, loading: authLoading } = useAuth();
+  const tier = useDeviceTier();
+  const isHighTier = tier === "high";
+
+  // Use standard elements if tier is not high to avoid framer motion overhead
+  const MotionH1 = isHighTier ? motion.h1 : "h1";
+  const MotionP = isHighTier ? motion.p : "p";
+  const MotionDiv = isHighTier ? motion.div : "div";
+
+  const heroAnim = isHighTier ? {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.5, delay: 0.1 }
+  } : {};
+
+  const subHeroAnim = isHighTier ? {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.5, delay: 0.2 }
+  } : {};
+
+  const ctaAnim = isHighTier ? {
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.5, delay: 0.3 }
+  } : {};
+
+  const getFeatureAnim = (i: number) => isHighTier ? {
+    initial: { opacity: 0, y: 20 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true },
+    transition: { duration: 0.5, delay: i * 0.1 }
+  } : {};
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 font-sans selection:bg-indigo-500/30 flex flex-col justify-between">
       {/* Navigation */}
-      <nav className="fixed w-full top-0 z-50 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-white/50 dark:bg-zinc-950/50 backdrop-blur-xl">
+      <nav className="fixed w-full top-0 z-50 border-b border-zinc-200/50 dark:border-zinc-800/50 bg-white/95 dark:bg-zinc-950/95">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Image src="/logo.png" alt="MaidX Logo" width={120} height={40} className="h-8 w-auto object-contain dark:bg-white/90 dark:px-2 dark:py-1 dark:rounded-lg" priority loading="eager" />
@@ -40,33 +73,27 @@ export default function Home() {
 
       {/* Hero Section */}
       <main className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden flex-1">
-        {/* Background Gradients */}
-        <div className="absolute top-0 -translate-y-12 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-indigo-500/20 dark:bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none" />
+        {/* Background Gradients - Replaced heavy blur filter with CSS radial-gradient */}
+        <div className="absolute top-0 -translate-y-12 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-500/15 dark:from-indigo-500/5 to-transparent rounded-full pointer-events-none" />
         
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="flex flex-col items-center text-center">
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+            <MotionH1
+              {...heroAnim}
               className="text-5xl md:text-7xl font-bold tracking-tight text-zinc-900 dark:text-white max-w-4xl mb-6"
             >
               Find trusted household help, <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-violet-500">instantly.</span>
-            </motion.h1>
+            </MotionH1>
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+            <MotionP
+              {...subHeroAnim}
               className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mb-10"
             >
               Easily hire local helpers for cleaning, cooking, laundry, and daily chores. Clear pricing, easy booking, and total safety.
-            </motion.p>
+            </MotionP>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
+            <MotionDiv
+              {...ctaAnim}
               className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
             >
               <Link href={user ? (user.role === 'client' ? "/dashboard/client/find-maids" : `/dashboard/${user.role}`) : "/signup?role=client"} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-600 text-white px-8 py-4 rounded-full font-medium hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-indigo-500/25">
@@ -78,7 +105,7 @@ export default function Home() {
                   Join as Helper
                 </Link>
               )}
-            </motion.div>
+            </MotionDiv>
           </div>
         </div>
       </main>
@@ -104,12 +131,9 @@ export default function Home() {
                 desc: "See ratings and reviews written by other households in your neighborhood before you book."
               }
             ].map((feature, i) => (
-              <motion.div
+              <MotionDiv
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
+                {...getFeatureAnim(i)}
                 className="p-6 rounded-3xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center mb-6">
@@ -121,7 +145,7 @@ export default function Home() {
                 <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
                   {feature.desc}
                 </p>
-              </motion.div>
+              </MotionDiv>
             ))}
           </div>
         </div>
