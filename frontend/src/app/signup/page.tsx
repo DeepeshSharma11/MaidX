@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2, CheckCircle2, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
+import LoadingBar from "@/components/LoadingBar";
 
 const ROLES = [
   { value: "client", label: "I need help 🏠", desc: "Hire trusted domestic workers" },
@@ -51,11 +52,7 @@ function SignupContent() {
   const [error, setError] = useState("");
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-zinc-950">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
-      </div>
-    );
+    return <LoadingBar />;
   }
 
 
@@ -333,7 +330,7 @@ function SignupContent() {
 
 export default function SignupPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-50 dark:bg-zinc-950 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-indigo-500" /></div>}>
+    <Suspense fallback={<LoadingBar />}>
       <SignupContent />
     </Suspense>
   );

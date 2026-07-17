@@ -9,6 +9,8 @@ import { Eye, EyeOff, Loader2, Star } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/lib/api";
 
+import LoadingBar from "@/components/LoadingBar";
+
 export default function LoginPage() {
   const { user, loading: authLoading, login } = useAuth();
   const router = useRouter();
@@ -50,11 +52,7 @@ export default function LoginPage() {
   };
 
   if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-zinc-950">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
-      </div>
-    );
+    return <LoadingBar />;
   }
 
 
