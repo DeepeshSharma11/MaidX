@@ -17,6 +17,7 @@ MaidX is a web-based domestic help hiring platform that connects local helpers (
 - **AI Booking Agent**: Floating chatbot drawer helper that automates bookings and reviews history in conversational terms.
 - **Role-based Dashboards**: Custom workspaces for Admins, Clients, and Helpers.
 - **Custom JWT Auth**: OTP verification with sliding sessions to avoid cross-origin cookie issues.
+- **Automated Health & Keep-Alive**: Built-in `/health` diagnostics and automated daily background DB keep-alive to maintain uninterrupted service.
 
 ## Getting Started
 
