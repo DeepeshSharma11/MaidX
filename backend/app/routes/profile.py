@@ -27,14 +27,19 @@ class PasswordChange(BaseModel):
     current_password: str
     new_password: str
 
+import asyncio
+
 @router.get("/")
 async def get_profile(user: dict = Depends(get_current_user)):
     db = get_supabase()
-    res = db.table("profiles").select("*").eq("id", user["id"]).execute()
+    
+    profile_task = asyncio.to_thread(lambda: db.table("profiles").select("*").eq("id", user["id"]).execute())
+    user_task = asyncio.to_thread(lambda: db.table("users").select("email").eq("id", user["id"]).execute())
+    
+    res, user_res = await asyncio.gather(profile_task, user_task)
     if not res.data:
         raise HTTPException(status_code=404, detail="Profile not found")
         
-    user_res = db.table("users").select("email").eq("id", user["id"]).execute()
     email = user_res.data[0]["email"] if user_res.data else ""
     
     profile = res.data[0]

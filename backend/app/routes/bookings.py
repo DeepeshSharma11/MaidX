@@ -16,7 +16,7 @@ class CreateBookingRequest(BaseModel):
 @router.get("/")
 async def get_bookings(user: dict = Depends(get_current_user)):
     db = get_supabase()
-    query = db.table("bookings").select("*").order("created_at", desc=True)
+    query = db.table("bookings").select("*").order("created_at", desc=True).limit(100)
     if user["role"] == "client":
         query = query.eq("client_id", user["id"])
     elif user["role"] == "maid":

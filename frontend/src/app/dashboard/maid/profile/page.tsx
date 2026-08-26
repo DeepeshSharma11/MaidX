@@ -206,7 +206,22 @@ export default function MaidProfilePage() {
   };
 
   if (loading) {
-    return <div className="p-8 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-emerald-500" /></div>;
+    return (
+      <div className="p-4 md:p-8 space-y-6 pb-24 md:pb-8 max-w-2xl mx-auto md:mx-0">
+        <header className="space-y-2">
+          <div className="w-40 h-7 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-xl" />
+          <div className="w-64 h-4 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-lg" />
+        </header>
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 space-y-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="space-y-2">
+              <div className="w-24 h-4 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded" />
+              <div className="w-full h-11 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-xl" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   const showOnboardAlert = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("onboard") === "true";
