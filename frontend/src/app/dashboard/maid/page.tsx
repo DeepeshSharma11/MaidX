@@ -66,7 +66,7 @@ export default function MaidDashboard() {
   }, [router]);
 
   return (
-    <div className="max-w-5xl">
+    <div className="p-4 md:p-8 space-y-8 pb-24 md:pb-8 max-w-5xl mx-auto">
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-1">
           {t("welcome")}, {user?.full_name || "Professional"} 💼

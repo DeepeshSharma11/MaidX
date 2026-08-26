@@ -102,6 +102,3 @@ export default function AdminOverviewPage() {
     </div>
   );
 }
-
-// Ensure User is imported if used (we need to import it since I missed it above)
-// I will quickly patch it in the file.
