@@ -69,7 +69,36 @@ export default function AdminTicketsPage() {
 
   const counts = tickets.reduce((acc, t) => { acc[t.status] = (acc[t.status] || 0) + 1; return acc; }, {} as Record<string, number>);
 
-  if (loading) return <div className="p-8 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-amber-500" /></div>;
+  if (loading) {
+    return (
+      <div className="p-4 md:p-8 space-y-6">
+        <header className="space-y-2">
+          <div className="w-44 h-7 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-xl" />
+          <div className="w-64 h-4 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-lg" />
+        </header>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 space-y-2">
+              <div className="w-12 h-6 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-lg" />
+              <div className="w-20 h-3 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded" />
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-5 space-y-3">
+              <div className="flex justify-between items-center">
+                <div className="w-16 h-5 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-full" />
+                <div className="w-20 h-3 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded" />
+              </div>
+              <div className="w-3/4 h-4 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded" />
+              <div className="w-full h-12 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-xl" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-8 space-y-6 pb-24 md:pb-8">

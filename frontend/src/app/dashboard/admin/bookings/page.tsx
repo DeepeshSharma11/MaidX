@@ -54,7 +54,25 @@ export default function AdminBookingsPage() {
   };
 
   if (loading) {
-    return <div className="p-8 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-indigo-500" /></div>;
+    return (
+      <div className="p-4 md:p-8 space-y-6">
+        <header className="space-y-2">
+          <div className="w-40 h-7 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-xl" />
+          <div className="w-56 h-4 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-lg" />
+        </header>
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 space-y-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="flex justify-between items-center py-3 border-b border-zinc-100 dark:border-zinc-800/50">
+              <div className="space-y-2">
+                <div className="w-36 h-4 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded" />
+                <div className="w-28 h-3 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded" />
+              </div>
+              <div className="w-20 h-6 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-full" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (

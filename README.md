@@ -14,6 +14,7 @@ MaidX is a platform connecting households with trusted domestic workers (maids, 
 - **Proximity Search**: Match with nearby domestic workers using SQL geolocation queries and interactive Leaflet maps.
 - **Bilingual Interface**: Toggle between English and Hindi across client and maid dashboards.
 - **Adaptive Performance**: UI animation scaling based on client hardware profiles for smooth rendering on low-end mobile devices.
+- **High-Speed Admin Dashboards**: Parallel database query execution (`asyncio.gather`), count query payload limits, 60s in-memory user-active verification cache, and zero-layout-shift Skeleton UI loading across all administrative views.
 - **Security & Session Management**: Asynchronous OTP verification, rate-limited auth endpoints with probabilistic cleanup, 5-strike failed OTP attempt lockouts, capped active sessions per user, and instant session revocation on password reset.
 - **Automated Keep-Alive**: Background health check task (`/health`) to maintain database connections.
 

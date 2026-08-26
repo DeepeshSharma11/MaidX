@@ -73,7 +73,31 @@ export default function AdminUsersPage() {
   };
 
   if (loading) {
-    return <div className="p-8 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-indigo-500" /></div>;
+    return (
+      <div className="p-4 md:p-8 space-y-6">
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-2">
+            <div className="w-44 h-7 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-xl" />
+            <div className="w-64 h-4 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-lg" />
+          </div>
+          <div className="w-64 h-10 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-xl" />
+        </header>
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 space-y-4">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="flex items-center justify-between py-2 border-b border-zinc-100 dark:border-zinc-800/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-800 animate-pulse" />
+                <div className="space-y-2">
+                  <div className="w-32 h-4 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded" />
+                  <div className="w-48 h-3 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded" />
+                </div>
+              </div>
+              <div className="w-20 h-6 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-full" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
   return (
     <div className="p-4 md:p-8 space-y-6">
