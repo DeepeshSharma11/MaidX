@@ -33,14 +33,13 @@ def store_otp(email: str, otp: str, purpose: str) -> None:
 
 
 def verify_otp(email: str, otp: str, purpose: str) -> bool:
-    """Verify OTP. Returns True if valid, marks it as used."""
+    """Verify OTP. Returns True if valid, marks it as used. Auto-invalidates after 5 failed tries."""
     db = get_supabase()
 
     result = (
         db.table("otp_codes")
-        .select("id, expires_at")
+        .select("id, otp, expires_at, attempts")
         .eq("email", email)
-        .eq("otp", otp)
         .eq("purpose", purpose)
         .eq("is_used", False)
         .order("created_at", desc=True)
@@ -53,10 +52,23 @@ def verify_otp(email: str, otp: str, purpose: str) -> bool:
 
     row = result.data[0]
     expires_at = datetime.fromisoformat(row["expires_at"].replace("Z", "+00:00"))
+    attempts = row.get("attempts", 0) or 0
 
-    if datetime.now(timezone.utc) > expires_at:
+    if datetime.now(timezone.utc) > expires_at or attempts >= 5:
+        # Mark expired or max-attempt code as used
+        db.table("otp_codes").update({"is_used": True}).eq("id", row["id"]).execute()
         return False
 
-    # Mark as used
+    if row["otp"] != otp:
+        new_attempts = attempts + 1
+        is_used = new_attempts >= 5
+        db.table("otp_codes").update({
+            "attempts": new_attempts,
+            "is_used": is_used,
+        }).eq("id", row["id"]).execute()
+        return False
+
+    # Valid OTP — mark as used
     db.table("otp_codes").update({"is_used": True}).eq("id", row["id"]).execute()
     return True
+

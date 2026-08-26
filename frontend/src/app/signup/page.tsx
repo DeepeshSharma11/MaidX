@@ -51,14 +51,13 @@ function SignupContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  if (authLoading) {
-    return <LoadingBar />;
-  }
-
-
   // OTP state
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  if (authLoading) {
+    return <LoadingBar />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

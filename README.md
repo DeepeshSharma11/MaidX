@@ -1,57 +1,76 @@
 # MaidX
 
-MaidX is a web-based domestic help hiring platform that connects local helpers (maids, cooks, cleaners) with households. It offers real-time booking, proximity-based search, dynamic scheduling, and an interactive bilingual interface.
+MaidX is a platform connecting households with trusted domestic workers (maids, cooks, cleaners). Built with Next.js and FastAPI, it features location-based search, dynamic scheduling, bilingual UI support (English/Hindi), and custom JWT authentication.
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14, TailwindCSS, Framer Motion, Leaflet.js maps
-- **Backend**: FastAPI (Python), PostgreSQL, SQLAlchemy
-- **Database / Auth**: Supabase DB with custom JWT auth (bcrypt + HTTP-only cookies)
-- **AI Integrations**: Llama-3.3-70b (via Groq) for automated booking assistance
+- **Frontend**: Next.js 14, TypeScript, TailwindCSS, Framer Motion, Leaflet.js
+- **Backend**: FastAPI, Python 3.10+, PostgreSQL (Supabase)
+- **Auth**: Custom JWT (bcrypt, HTTP-only cookie + localStorage fallback, sliding refresh sessions)
+- **AI Assistant**: Llama 3.3 (Groq) for automated booking assistance
 
 ## Features
 
-- **Proximity-Based Search**: Matches users with nearby helpers using SQL geolocation and Leaflet maps.
-- **Bilingual Support**: Toggle between English and Hindi globally with persistent settings.
-- **Performance Optimized**: Adaptive UI scaling via `useDeviceTier` to ensure high performance on lower-tier mobile hardware by reducing animation density and rendering overhead.
-- **AI Booking Agent**: Floating chatbot drawer helper that automates bookings and reviews history in conversational terms.
-- **Role-based Dashboards**: Custom workspaces for Admins, Clients, and Helpers.
-- **Custom JWT Auth**: OTP verification with sliding sessions to avoid cross-origin cookie issues.
-- **Automated Health & Keep-Alive**: Built-in `/health` diagnostics and automated daily background DB keep-alive to maintain uninterrupted service.
+- **Proximity Search**: Match with nearby domestic workers using SQL geolocation queries and interactive Leaflet maps.
+- **Bilingual Interface**: Toggle between English and Hindi across client and maid dashboards.
+- **Adaptive Performance**: UI animation scaling based on client hardware profiles for smooth rendering on low-end mobile devices.
+- **Security & Session Management**: Asynchronous OTP verification, rate-limited auth endpoints with probabilistic cleanup, 5-strike failed OTP attempt lockouts, capped active sessions per user, and instant session revocation on password reset.
+- **Automated Keep-Alive**: Background health check task (`/health`) to maintain database connections.
+
+## Project Structure
+
+```
+MaidX/
+├── backend/            # FastAPI REST backend & services
+│   ├── app/
+│   │   ├── core/       # Security, DB connection, config
+│   │   ├── routes/     # Auth, bookings, maids, reviews, chat
+│   │   └── services/   # Email, OTP, rate limiter, LLM
+│   └── main.py
+└── frontend/           # Next.js 14 App Router codebase
+    ├── src/
+    │   ├── app/        # Pages & routing
+    │   ├── components/ # Reusable UI components
+    │   ├── context/    # Global AuthContext
+    │   └── lib/        # Axios client & API interceptors
+```
 
 ## Getting Started
 
 ### Prerequisites
+
 - Python 3.10+
 - Node.js 18+
+- PostgreSQL database (e.g. Supabase)
 
 ### Backend Setup
 
-1. Navigate to the backend directory:
+1. Navigate to backend:
    ```bash
    cd backend
    ```
-2. Create and activate a virtual environment:
+2. Set up virtual environment and install dependencies:
    ```bash
    python -m venv venv
-   # On Windows:
-   .\venv\Scripts\activate
-   # On macOS/Linux:
-   source venv/bin/activate
-   ```
-3. Install dependencies:
-   ```bash
+   source venv/bin/activate  # On Windows: .\venv\Scripts\activate
    pip install -r requirements.txt
    ```
-4. Set up your `.env` file based on the config requirements (DB URL, JWT secrets, SMTP settings).
-5. Start the API server:
+3. Configure environment variables in `.env`:
+   ```env
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+   JWT_SECRET_KEY=your_jwt_secret
+   RESEND_API_KEY=your_resend_api_key
+   RESEND_FROM_EMAIL=your_email
+   ```
+4. Run server:
    ```bash
    uvicorn main:app --reload
    ```
 
 ### Frontend Setup
 
-1. Navigate to the frontend directory:
+1. Navigate to frontend:
    ```bash
    cd frontend
    ```
@@ -59,8 +78,12 @@ MaidX is a web-based domestic help hiring platform that connects local helpers (
    ```bash
    npm install
    ```
-3. Create `.env.local` and set `NEXT_PUBLIC_API_URL`.
-4. Run the development server:
+3. Configure environment variables in `.env.local`:
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:8000
+   ```
+4. Start dev server:
    ```bash
    npm run dev
    ```
+

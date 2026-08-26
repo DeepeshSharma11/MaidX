@@ -36,12 +36,14 @@ def check_rate_limit(request: Request, action: str) -> None:
     max_attempts = LIMITS.get(action, 5)
     window_start = datetime.now(timezone.utc) - timedelta(minutes=WINDOW_MINUTES)
 
-    # Lazy cleanup: delete expired rate limit logs for this action to prevent DB bloat
-    try:
-        get_supabase().table("rate_limits").delete().eq("action", action).lt("window_start", window_start.isoformat()).execute()
-    except Exception as cleanup_err:
-        import logging
-        logging.getLogger(__name__).warning(f"Failed to lazy clean rate limits: {cleanup_err}")
+    # Probabilistic cleanup (1 in 20 requests) to prevent DB bloat without adding DB latency to every request
+    import random
+    if random.randint(1, 20) == 1:
+        try:
+            get_supabase().table("rate_limits").delete().eq("action", action).lt("window_start", window_start.isoformat()).execute()
+        except Exception as cleanup_err:
+            import logging
+            logging.getLogger(__name__).warning(f"Failed to clean rate limits: {cleanup_err}")
 
 
     for identifier in _get_identifiers(request):

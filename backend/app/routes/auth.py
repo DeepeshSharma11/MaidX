@@ -8,7 +8,7 @@ import logging
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Request, Response, HTTPException, status, Body
+from fastapi import APIRouter, Request, Response, HTTPException, status, Body, BackgroundTasks
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, EmailStr
 
@@ -69,7 +69,16 @@ def _clear_refresh_cookie(response: Response) -> None:
     response.delete_cookie("refresh_token", secure=True, samesite="none")
 
 def _issue_session(db, user_id: str, role: str, full_name: str, email: str, response: Response) -> dict:
-    """Create DB session + set cookie + return token payload."""
+    """Create DB session + set cookie + return token payload. Cap active sessions per user to 5."""
+    # Delete excess old sessions to prevent table bloat
+    try:
+        sessions_res = db.table("sessions").select("id").eq("user_id", user_id).order("created_at", desc=True).execute()
+        if sessions_res.data and len(sessions_res.data) >= 5:
+            old_ids = [s["id"] for s in sessions_res.data[4:]]
+            db.table("sessions").delete().in_("id", old_ids).execute()
+    except Exception as err:
+        logger.warning(f"Failed session cleanup: {err}")
+
     access_token = create_access_token(data={"sub": str(user_id), "role": role})
     refresh_token = str(uuid.uuid4())
     expires_at = datetime.now(timezone.utc) + timedelta(days=7)
@@ -93,11 +102,12 @@ def _issue_session(db, user_id: str, role: str, full_name: str, email: str, resp
 # ── Signup ────────────────────────────────────────────────
 
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
-async def signup(body: SignupRequest, request: Request):
+async def signup(body: SignupRequest, request: Request, background_tasks: BackgroundTasks):
     check_rate_limit(request, "signup")
 
     valid_roles = {"client", "maid"}          # admin cannot self-register
     role = body.role if body.role in valid_roles else "client"
+    clean_name = body.full_name.strip()[:100]
 
     if len(body.password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
@@ -108,10 +118,10 @@ async def signup(body: SignupRequest, request: Request):
     if existing.data:
         if existing.data[0]["is_active"]:
             raise HTTPException(status_code=400, detail="Email already registered.")
-        # Unverified — resend OTP silently
+        # Unverified — resend OTP
         otp = generate_otp()
         store_otp(body.email, otp, "signup_verify")
-        send_otp_email(body.email, otp)
+        background_tasks.add_task(send_otp_email, body.email, otp)
         return {"message": "Verification email resent. Check your inbox.", "requires_otp": True}
 
     try:
@@ -122,7 +132,7 @@ async def signup(body: SignupRequest, request: Request):
         }).execute()
         user_id = user_res.data[0]["id"]
         db.table("profiles").insert({
-            "id": user_id, "role": role, "full_name": body.full_name,
+            "id": user_id, "role": role, "full_name": clean_name,
         }).execute()
     except Exception as e:
         logger.error(f"Signup DB error: {e}")
@@ -130,7 +140,7 @@ async def signup(body: SignupRequest, request: Request):
 
     otp = generate_otp()
     store_otp(body.email, otp, "signup_verify")
-    send_otp_email(body.email, otp)
+    background_tasks.add_task(send_otp_email, body.email, otp)
 
     return {"message": "Account created! Check your email for the verification code.", "requires_otp": True}
 
@@ -141,23 +151,30 @@ async def verify_signup_otp(body: VerifyOtpRequest, request: Request):
     if not verify_otp(body.email, body.otp, "signup_verify"):
         raise HTTPException(status_code=400, detail="Invalid or expired OTP.")
     db = get_supabase()
-    db.table("users").update({"is_active": True}).eq("email", body.email).execute()
+    res = db.table("users").update({"is_active": True}).eq("email", body.email).execute()
+    if not res.data:
+        raise HTTPException(status_code=400, detail="User account not found.")
     return {"message": "Email verified! You can now log in.", "verified": True}
 
 
 @router.post("/resend-otp")
-async def resend_otp(body: EmailRequest, request: Request):
+async def resend_otp(body: EmailRequest, request: Request, background_tasks: BackgroundTasks):
     check_rate_limit(request, "otp_verify")
+    db = get_supabase()
+    user_res = db.table("users").select("id, is_active").eq("email", body.email).execute()
+    if not user_res.data or user_res.data[0]["is_active"]:
+        return {"message": "If an unverified account exists with this email, a code has been sent."}
+
     otp = generate_otp()
     store_otp(body.email, otp, "signup_verify")
-    send_otp_email(body.email, otp)
+    background_tasks.add_task(send_otp_email, body.email, otp)
     return {"message": "Verification code resent. Check your email."}
 
 
 # ── Login ─────────────────────────────────────────────────
 
 @router.post("/login")
-async def login(body: LoginRequest, request: Request, response: Response):
+async def login(body: LoginRequest, request: Request, response: Response, background_tasks: BackgroundTasks):
     check_rate_limit(request, "login")
 
     db = get_supabase()
@@ -172,7 +189,7 @@ async def login(body: LoginRequest, request: Request, response: Response):
     if not user["is_active"]:
         otp = generate_otp()
         store_otp(body.email, otp, "signup_verify")
-        send_otp_email(body.email, otp)
+        background_tasks.add_task(send_otp_email, body.email, otp)
         return JSONResponse(status_code=200, content={
             "requires_otp": True,
             "email": body.email,
@@ -258,7 +275,7 @@ async def logout(request: Request, response: Response, body: RefreshRequest = Bo
 # ── Forgot Password ───────────────────────────────────────
 
 @router.post("/forgot-password")
-async def forgot_password(body: EmailRequest, request: Request):
+async def forgot_password(body: EmailRequest, request: Request, background_tasks: BackgroundTasks):
     check_rate_limit(request, "forgot_password")
     db = get_supabase()
     user_res = db.table("users").select("id").eq("email", body.email).execute()
@@ -267,7 +284,7 @@ async def forgot_password(body: EmailRequest, request: Request):
     if user_res.data:
         otp = generate_otp()
         store_otp(body.email, otp, "password_reset")
-        send_otp_email(body.email, otp)
+        background_tasks.add_task(send_otp_email, body.email, otp)
 
     return {"message": "If this email exists, a reset code has been sent."}
 
@@ -284,7 +301,6 @@ async def verify_reset_otp(body: VerifyOtpRequest, request: Request):
     return {"message": "Code verified. You can now set a new password.", "reset_token": reset_token}
 
 
-
 @router.post("/reset-password")
 async def reset_password(body: ResetPasswordRequest, request: Request):
     check_rate_limit(request, "forgot_password")
@@ -293,5 +309,11 @@ async def reset_password(body: ResetPasswordRequest, request: Request):
     if len(body.new_password) < 8:
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters.")
     db = get_supabase()
-    db.table("users").update({"hashed_password": get_password_hash(body.new_password)}).eq("email", body.email).execute()
+    user_res = db.table("users").select("id").eq("email", body.email).execute()
+    if user_res.data:
+        user_id = user_res.data[0]["id"]
+        db.table("users").update({"hashed_password": get_password_hash(body.new_password)}).eq("id", user_id).execute()
+        # Revoke all existing sessions on password reset for security
+        db.table("sessions").delete().eq("user_id", user_id).execute()
     return {"message": "Password reset successfully. You can now log in."}
+
