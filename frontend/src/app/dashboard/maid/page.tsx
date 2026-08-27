@@ -44,13 +44,16 @@ export default function MaidDashboard() {
   useEffect(() => {
     async function initDashboard() {
       try {
-        const profileRes = await api.get("/profile");
+        const [profileRes, bookingsRes] = await Promise.all([
+          api.get("/profile"),
+          api.get("/bookings")
+        ]);
+
         if (!profileRes.data.phone) {
           router.push("/dashboard/maid/profile?onboard=true");
           return;
         }
 
-        const bookingsRes = await api.get("/bookings");
         const list = bookingsRes.data.bookings || [];
         const upcomingJobs = list.filter(
           (b: Booking) => b.status === "pending" || b.status === "confirmed"
