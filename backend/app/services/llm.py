@@ -24,7 +24,7 @@ def call_groq_llama(prompt_or_messages: str | list, system_instruction: str = No
         messages.append({"role": "user", "content": prompt_or_messages})
 
     payload = {
-        "model": "llama-3.3-70b-versatile",
+        "model": "qwen-2.5-32b",
         "messages": messages,
         "temperature": 0.2
     }
@@ -43,11 +43,11 @@ def call_groq_llama(prompt_or_messages: str | list, system_instruction: str = No
             choices = res_data.get("choices", [])
             if choices:
                 return choices[0].get("message", {}).get("content", "")
-            return "Sorry, I couldn't get a response from the Llama assistant."
+            return "Sorry, I couldn't get a response from the Qwen assistant."
     except urllib.error.HTTPError as e:
         err_msg = e.read().decode("utf-8")
         logger.error(f"Groq API HTTP Error: {e.code} - {err_msg}")
         return "An error occurred while speaking to the assistant. Please try again."
     except Exception as e:
         logger.error(f"Groq API Error: {str(e)}")
-        return "Failed to connect to the Llama assistant. Please check your network connection and try again."
+        return "Failed to connect to the Qwen assistant. Please check your network connection and try again."

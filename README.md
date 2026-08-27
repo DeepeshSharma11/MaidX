@@ -17,6 +17,7 @@ MaidX is a platform connecting households with trusted domestic workers (maids, 
 - **High-Speed Dashboards & APIs**: Parallel database query execution (`asyncio.gather`), query payload bounds (`limit`), 60s in-memory user-active verification cache, zero-layout-shift Skeleton UI loading, and dynamic role-based routing at `/dashboard`.
 - **Security & Session Management**: Asynchronous OTP verification, rate-limited auth endpoints with probabilistic cleanup, 5-strike failed OTP attempt lockouts, capped active sessions per user, and instant session revocation on password reset.
 - **Automated Keep-Alive**: Background health check task (`/health`) to maintain database connections.
+- **Intelligent Assistant**: Chatbot interface powered by Groq's high-speed `qwen-2.5-32b` model, parsing real-time context to perform automated booking actions.
 
 ## Project Structure
 
